@@ -946,6 +946,7 @@
   }
 
   /* ANIMATIONS */
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
@@ -1439,24 +1440,42 @@
     list.innerHTML = names;
   });
 
-  // Form submit
-  document.getElementById('contactForm').addEventListener('submit', function (e) {
+  // Form submit com integração Google Sheets + redirecionamento para análise IA
+  document.getElementById('contactForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const name = document.getElementById('name').value;
-    const email = document.getElementById('email').value;
-    const caseType = document.getElementById('caseType').value;
-    const description = document.getElementById('description').value;
+    const btn = document.querySelector('.form-submit');
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Enviando...';
+    btn.disabled = true;
 
-    const subject = encodeURIComponent(`Meu Acerto AI — Novo caso: ${caseType}`);
-    const body = encodeURIComponent(
-      `Nome: ${name}\nE-mail: ${email}\nÁrea: ${caseType}\n\nSituação:\n${description}\n\n---\nEnviado via meuacertoai.lovable.app`
-    );
-    const mailto = `mailto:miguelnani18@gmail.com?subject=${subject}&body=${body}`;
-    window.location.href = mailto;
+    const dados = {
+      name: document.getElementById('name').value,
+      email: document.getElementById('email').value,
+      caseType: document.getElementById('caseType').value,
+      description: document.getElementById('description').value,
+      timestamp: new Date().toLocaleString('pt-BR')
+    };
 
-    document.getElementById('contactForm').style.display = 'none';
-    document.getElementById('successMsg').style.display = 'block';
+    // Salva dados para a página de análise
+    sessionStorage.setItem('meuacerto_dados', JSON.stringify(dados));
+
+    // Envia para Google Sheets via Apps Script (substitua pela sua URL)
+    const SHEETS_URL = 'COLE_AQUI_A_URL_DO_SEU_GOOGLE_APPS_SCRIPT';
+    try {
+      if (SHEETS_URL !== 'COLE_AQUI_A_URL_DO_SEU_GOOGLE_APPS_SCRIPT') {
+        await fetch(SHEETS_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+      }
+    } catch(err) {
+      console.log('Sheets offline, continuando...');
+    }
+
+    // Redireciona para página de análise IA
+    window.location.href = 'resultado.html';
   });
 
   // Reveal on scroll
@@ -1483,4 +1502,3 @@
 </script>
 </body>
 </html>
-   
