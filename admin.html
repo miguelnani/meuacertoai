@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Meu Acerto AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F172A;--navy-mid:#1E293B;--navy-soft:#334155;
+  --orange:#F97316;--orange-light:rgba(249,115,22,0.12);
+  --white:#F8FAFC;--gray:#CBD5E1;--gray-mid:#94A3B8;--gray-light:#E2E8F0;--slate:#475569;
+  --green:#10B981;--green-bg:rgba(16,185,129,0.1);
+  --red:#EF4444;--red-bg:rgba(239,68,68,0.1);
+  --blue:#3B82F6;--blue-bg:rgba(59,130,246,0.1);
+  --yellow:#F59E0B;--yellow-bg:rgba(245,158,11,0.1);
+  --purple:#8B5CF6;--purple-bg:rgba(139,92,246,0.1);
+  --sidebar-w:240px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:var(--navy)}
+
+/* ─── LOGIN ─── */
+#loginScreen{position:fixed;inset:0;background:var(--navy);display:flex;align-items:center;justify-content:center;z-index:999}
+#loginScreen.hide{display:none}
+.login-box{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:24px;padding:48px 40px;width:100%;max-width:400px}
+.login-logo{display:flex;align-items:center;gap:10px;margin-bottom:32px;justify-content:center}
+.login-logo-text{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:white}
+.login-logo-text span{color:var(--orange)}
+.login-title{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:white;text-align:center;margin-bottom:6px}
+.login-sub{font-size:14px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:28px}
+.login-field{margin-bottom:16px}
+.login-field label{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);margin-bottom:6px}
+.login-field input{width:100%;padding:12px 14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-size:14px;color:white;font-family:'Plus Jakarta Sans',sans-serif;outline:none;transition:border-color 0.2s}
+.login-field input:focus{border-color:var(--orange)}
+.login-field input::placeholder{color:rgba(255,255,255,0.25)}
+.login-btn{width:100%;background:var(--orange);color:white;padding:13px;border-radius:10px;font-size:15px;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;margin-top:8px;transition:all 0.2s}
+.login-btn:hover{background:#FB923C}
+.login-error{color:#EF4444;font-size:13px;text-align:center;margin-top:10px;display:none}
+
+/* ─── LAYOUT ─── */
+#app{display:flex;height:100vh;overflow:hidden}
+#app.hide{display:none}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar-w);background:var(--navy);display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sidebar-logo{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;gap:10px}
+.sidebar-logo-text{font-family:'Sora',sans-serif;font-size:14px;font-weight:700;color:white}
+.sidebar-logo-text span{color:var(--orange)}
+.sidebar-logo-sub{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:0.8px;text-transform:uppercase;display:block}
+.sidebar-section{padding:16px 12px 4px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:rgba(255,255,255,0.25)}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;margin:2px 8px;cursor:pointer;transition:all 0.2s;font-size:13.5px;font-weight:500;color:rgba(255,255,255,0.5);text-decoration:none}
+.sidebar-item:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.8)}
+.sidebar-item.active{background:rgba(249,115,22,0.15);color:var(--orange)}
+.sidebar-item svg{flex-shrink:0;opacity:0.7}
+.sidebar-item.active svg{opacity:1}
+.sidebar-spacer{flex:1}
+.sidebar-user{padding:12px;border-top:1px solid rgba(255,255,255,0.06);margin:8px}
+.sidebar-user-info{font-size:12px;color:rgba(255,255,255,0.4)}
+.sidebar-user-name{font-size:13px;font-weight:600;color:rgba(255,255,255,0.8);margin-bottom:2px}
+.logout-btn{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.3);cursor:pointer;margin-top:8px;transition:color 0.2s;background:none;border:none;font-family:'Plus Jakarta Sans',sans-serif}
+.logout-btn:hover{color:var(--red)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;background:var(--white)}
+.topbar{padding:16px 28px;border-bottom:1px solid var(--gray-light);display:flex;align-items:center;justify-content:space-between;background:white;position:sticky;top:0;z-index:10}
+.topbar-title{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:var(--navy)}
+.topbar-sub{font-size:13px;color:var(--gray-mid);margin-top:2px}
+.topbar-actions{display:flex;gap:10px;align-items:center}
+.btn-sm{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--orange);color:white}
+.btn-primary:hover{background:#FB923C}
+.btn-ghost{background:transparent;color:var(--slate);border:1.5px solid var(--gray-light)}
+.btn-ghost:hover{border-color:var(--gray);background:var(--gray-light)}
+
+/* PAGES */
+.page{display:none;padding:28px}
+.page.active{display:block}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
+.stat-card{background:white;border:1.5px solid var(--gray-light);border-radius:14px;padding:20px}
+.stat-label{font-size:12px;font-weight:600;color:var(--gray-mid);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px}
+.stat-value{font-family:'Sora',sans-serif;font-size:28px;font-weight:700;color:var(--navy);line-height:1}
+.stat-sub{font-size:12px;color:var(--gray-mid);margin-top:6px;display:flex;align-items:center;gap:4px}
+.stat-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px}
+.stat-badge.up{background:var(--green-bg);color:var(--green)}
+.stat-badge.down{background:var(--red-bg);color:var(--red)}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
+.chart-card{background:white;border:1.5px solid var(--gray-light);border-radius:14px;padding:20px}
+.chart-card h3{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--navy);margin-bottom:16px}
+
+/* BAR CHART */
+.bar-chart{display:flex;flex-direction:column;gap:10px}
+.bar-item{display:flex;align-items:center;gap:10px}
+.bar-label{font-size:12px;color:var(--slate);width:80px;flex-shrink:0}
+.bar-track{flex:1;height:8px;background:var(--gray-light);border-radius:100px;overflow:hidden}
+.bar-fill{height:100%;border-radius:100px;transition:width 0.8s ease}
+.bar-val{font-size:12px;font-weight:600;color:var(--navy);width:30px;text-align:right;flex-shrink:0}
+
+/* DONUT */
+.donut-wrap{display:flex;align-items:center;gap:20px}
+.donut-svg{flex-shrink:0}
+.donut-legend{display:flex;flex-direction:column;gap:8px}
+.legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--slate)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* TABLE */
+.table-card{background:white;border:1.5px solid var(--gray-light);border-radius:14px;overflow:hidden;margin-bottom:28px}
+.table-header{padding:16px 20px;border-bottom:1px solid var(--gray-light);display:flex;align-items:center;justify-content:space-between}
+.table-header h3{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--navy)}
+table{width:100%;border-collapse:collapse}
+thead th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-mid);background:var(--white);border-bottom:1px solid var(--gray-light)}
+tbody tr{border-bottom:1px solid var(--gray-light);transition:background 0.15s;cursor:pointer}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#FAFBFC}
+td{padding:12px 16px;font-size:13.5px;color:var(--navy)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 10px;border-radius:100px}
+.badge.prospect{background:var(--green-bg);color:var(--green)}
+.badge.lead{background:var(--blue-bg);color:var(--blue)}
+.badge.cold{background:var(--gray-light);color:var(--slate)}
+.badge.hot{background:var(--red-bg);color:var(--red)}
+.badge.area-t{background:#EFF6FF;color:#1D4ED8}
+.badge.area-b{background:#F0FDF4;color:#15803D}
+.badge.area-c{background:#FFF7ED;color:#C2410C}
+.badge.area-v{background:#EEF2FF;color:#4338CA}
+.badge.area-ct{background:#FDF4FF;color:#7E22CE}
+.badge.area-o{background:var(--gray-light);color:var(--slate)}
+
+/* CRM */
+.crm-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.crm-tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;border:1.5px solid var(--gray-light);color:var(--slate);background:white;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif}
+.crm-tab.active{border-color:var(--orange);color:var(--orange);background:var(--orange-light)}
+.crm-tab:hover:not(.active){border-color:var(--gray);background:var(--gray-light)}
+.crm-count{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:var(--orange);color:white;border-radius:50%;font-size:10px;font-weight:700;margin-left:4px}
+.crm-tab:not(.active) .crm-count{background:var(--gray-mid)}
+
+.profile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.profile-card{background:white;border:1.5px solid var(--gray-light);border-radius:14px;padding:20px;cursor:pointer;transition:all 0.25s}
+.profile-card:hover{border-color:var(--orange);box-shadow:0 4px 20px rgba(249,115,22,0.1);transform:translateY(-2px)}
+.profile-avatar{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:white;margin-bottom:12px;flex-shrink:0}
+.profile-name{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:var(--navy);margin-bottom:3px}
+.profile-email{font-size:12px;color:var(--gray-mid);margin-bottom:10px}
+.profile-meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.profile-desc{font-size:12px;color:var(--slate);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.profile-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-light)}
+.profile-date{font-size:11px;color:var(--gray-mid)}
+
+/* MODAL PERFIL */
+.modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px)}
+.modal-overlay.hide{display:none}
+.modal{background:white;border-radius:20px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:24px 28px;border-bottom:1px solid var(--gray-light);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:white;z-index:1}
+.modal-header h2{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;color:var(--navy)}
+.modal-close{width:32px;height:32px;border-radius:8px;background:var(--gray-light);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--slate);transition:all 0.2s}
+.modal-close:hover{background:var(--gray);color:var(--navy)}
+.modal-body{padding:24px 28px}
+.modal-section{margin-bottom:20px}
+.modal-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gray-mid);margin-bottom:10px}
+.modal-field{display:flex;gap:8px;margin-bottom:8px;font-size:14px}
+.modal-field-label{font-weight:600;color:var(--navy);min-width:80px;flex-shrink:0}
+.modal-field-val{color:var(--slate);line-height:1.5}
+.analysis-box{background:var(--white);border:1px solid var(--gray-light);border-radius:10px;padding:16px;font-size:13.5px;color:var(--slate);line-height:1.7}
+
+/* USERS */
+.users-grid{display:grid;gap:12px}
+.user-row{background:white;border:1.5px solid var(--gray-light);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px}
+.user-avatar{width:40px;height:40px;border-radius:10px;background:var(--navy);color:white;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:700;font-size:14px;flex-shrink:0}
+.user-info{flex:1}
+.user-name{font-size:14px;font-weight:600;color:var(--navy)}
+.user-email{font-size:12px;color:var(--gray-mid)}
+.user-role{font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;background:var(--orange-light);color:var(--orange)}
+.user-actions{display:flex;gap:8px}
+.icon-btn{width:32px;height:32px;border-radius:8px;background:var(--gray-light);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--slate);transition:all 0.2s}
+.icon-btn:hover{background:var(--red-bg);color:var(--red)}
+
+/* ADD USER FORM */
+.add-user-form{background:white;border:1.5px solid var(--gray-light);border-radius:14px;padding:24px;margin-bottom:20px}
+.add-user-form h3{font-family:'Sora',sans-serif;font-size:15px;font-weight:600;color:var(--navy);margin-bottom:16px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:500;color:var(--navy);margin-bottom:6px}
+.form-group input,.form-group select{width:100%;padding:10px 12px;border:1.5px solid var(--gray-light);border-radius:8px;font-size:14px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--navy);outline:none;transition:border-color 0.2s}
+.form-group input:focus,.form-group select:focus{border-color:var(--orange)}
+
+/* EMPTY */
+.empty-state{text-align:center;padding:60px 20px;color:var(--gray-mid)}
+.empty-state svg{margin-bottom:12px;opacity:0.4}
+.empty-state p{font-size:14px}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--gray-light);border-radius:100px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{display:none}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .charts-row{grid-template-columns:1fr}
+  .form-row-2{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="32" height="32" viewBox="0 0 120 130" fill="none">
+        <path d="M60 6 L10 24 L10 62 C10 90 32 112 60 120 C88 112 110 90 110 62 L110 24 Z" fill="#1B3F72"/>
+        <path d="M22 30 L38 52 L60 28 L82 52 L98 30 L98 22 L82 40 L60 18 L38 40 L22 22 Z" fill="white"/>
+        <rect x="28" y="72" width="14" height="28" rx="3" fill="#1A5CA8"/>
+        <rect x="53" y="60" width="14" height="40" rx="3" fill="#2980C4"/>
+        <rect x="78" y="50" width="14" height="50" rx="3" fill="#1A5CA8"/>
+        <path d="M32 78 C45 95 70 65 95 42" stroke="#F97316" stroke-width="7" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="login-logo-text">Meu Acerto <span>AI</span></div>
+    </div>
+    <div class="login-title">Painel Administrativo</div>
+    <div class="login-sub">Acesso restrito à equipe interna</div>
+    <div class="login-field">
+      <label>E-mail</label>
+      <input type="email" id="loginEmail" placeholder="seu@email.com">
+    </div>
+    <div class="login-field">
+      <label>Senha</label>
+      <input type="password" id="loginPassword" placeholder="••••••••">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="loginError">E-mail ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hide">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="28" height="28" viewBox="0 0 120 130" fill="none">
+        <path d="M60 6 L10 24 L10 62 C10 90 32 112 60 120 C88 112 110 90 110 62 L110 24 Z" fill="#1B3F72"/>
+        <path d="M22 30 L38 52 L60 28 L82 52 L98 30 L98 22 L82 40 L60 18 L38 40 L22 22 Z" fill="white"/>
+        <rect x="28" y="72" width="14" height="28" rx="3" fill="#1A5CA8"/>
+        <rect x="53" y="60" width="14" height="40" rx="3" fill="#2980C4"/>
+        <rect x="78" y="50" width="14" height="50" rx="3" fill="#1A5CA8"/>
+        <path d="M32 78 C45 95 70 65 95 42" stroke="#F97316" stroke-width="7" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div>
+        <div class="sidebar-logo-text">Meu Acerto <span>AI</span></div>
+        <span class="sidebar-logo-sub">Admin Panel</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">Principal</div>
+    <a class="sidebar-item active" onclick="showPage('dashboard')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </a>
+    <a class="sidebar-item" onclick="showPage('crm')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      CRM — Perfis
+    </a>
+    <a class="sidebar-item" onclick="showPage('leads')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Todos os Leads
+    </a>
+
+    <div class="sidebar-section">Configurações</div>
+    <a class="sidebar-item" onclick="showPage('users')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Usuários
+    </a>
+
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-user">
+      <div class="sidebar-user-name" id="sidebarUserName">—</div>
+      <div class="sidebar-user-info" id="sidebarUserEmail">—</div>
+      <button class="logout-btn" onclick="doLogout()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">Dashboard</div>
+          <div class="topbar-sub">Visão geral dos leads e análises</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn-sm btn-ghost" onclick="loadData()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+            Atualizar
+          </button>
+        </div>
+      </div>
+      <div style="padding:28px">
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total de Leads</div>
+            <div class="stat-value" id="statTotal">0</div>
+            <div class="stat-sub">formulários enviados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Prospects Quentes</div>
+            <div class="stat-value" id="statProspects" style="color:var(--green)">0</div>
+            <div class="stat-sub">análise positiva</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Em Avaliação</div>
+            <div class="stat-value" id="statMaybe" style="color:var(--yellow)">0</div>
+            <div class="stat-sub">resultado "talvez"</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Esta Semana</div>
+            <div class="stat-value" id="statWeek" style="color:var(--blue)">0</div>
+            <div class="stat-sub">novos leads</div>
+          </div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Leads por Área</h3>
+            <div class="bar-chart" id="barChart"></div>
+          </div>
+          <div class="chart-card">
+            <h3>Status dos Prospects</h3>
+            <div class="donut-wrap">
+              <svg class="donut-svg" width="120" height="120" viewBox="0 0 120 120" id="donutSvg">
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#E2E8F0" stroke-width="18"/>
+                <circle id="donutGreen" cx="60" cy="60" r="45" fill="none" stroke="#10B981" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="70.75" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <circle id="donutYellow" cx="60" cy="60" r="45" fill="none" stroke="#F59E0B" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="70.75" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+                <circle id="donutGray" cx="60" cy="60" r="45" fill="none" stroke="#CBD5E1" stroke-width="18" stroke-dasharray="0 283" stroke-dashoffset="70.75" stroke-linecap="round" transform="rotate(-90 60 60)"/>
+              </svg>
+              <div class="donut-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Prospect quente</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div> Em avaliação</div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--gray)"></div> Não qualificado</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Últimos Leads</h3>
+            <button class="btn-sm btn-ghost" onclick="showPage('leads')">Ver todos</button>
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Nome</th><th>E-mail</th><th>Área</th><th>Status</th><th>Data</th>
+              </tr></thead>
+              <tbody id="recentLeadsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CRM -->
+    <div class="page" id="page-crm">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">CRM — Perfis</div>
+          <div class="topbar-sub">Leads organizados por categoria</div>
+        </div>
+      </div>
+      <div style="padding:28px">
+        <div class="crm-tabs" id="crmTabs">
+          <button class="crm-tab active" onclick="filterCRM('all')">Todos <span class="crm-count" id="cnt-all">0</span></button>
+          <button class="crm-tab" onclick="filterCRM('trabalhista')">💼 Trabalhista <span class="crm-count" id="cnt-trabalhista">0</span></button>
+          <button class="crm-tab" onclick="filterCRM('bancario')">🏦 Bancário <span class="crm-count" id="cnt-bancario">0</span></button>
+          <button class="crm-tab" onclick="filterCRM('consumidor')">🛍 Consumidor <span class="crm-count" id="cnt-consumidor">0</span></button>
+          <button class="crm-tab" onclick="filterCRM('viagens')">✈️ Viagens <span class="crm-count" id="cnt-viagens">0</span></button>
+          <button class="crm-tab" onclick="filterCRM('contratos')">📜 Contratos <span class="crm-count" id="cnt-contratos">0</span></button>
+          <button class="crm-tab" onclick="filterCRM('outros')">📂 Outros <span class="crm-count" id="cnt-outros">0</span></button>
+        </div>
+        <div class="profile-grid" id="profileGrid"></div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="page" id="page-leads">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">Todos os Leads</div>
+          <div class="topbar-sub">Lista completa de formulários recebidos</div>
+        </div>
+      </div>
+      <div style="padding:28px">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Leads recebidos</h3>
+            <input type="text" placeholder="Buscar..." oninput="filterLeads(this.value)" style="padding:7px 12px;border:1.5px solid var(--gray-light);border-radius:8px;font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;width:200px">
+          </div>
+          <div style="overflow-x:auto">
+            <table>
+              <thead><tr>
+                <th>Nome</th><th>E-mail</th><th>Área</th><th>Situação</th><th>Status</th><th>Data</th>
+              </tr></thead>
+              <tbody id="allLeadsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="page" id="page-users">
+      <div class="topbar">
+        <div>
+          <div class="topbar-title">Usuários</div>
+          <div class="topbar-sub">Cadastro de administradores</div>
+        </div>
+      </div>
+      <div style="padding:28px">
+        <div class="add-user-form">
+          <h3>Adicionar novo usuário</h3>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Nome completo</label>
+              <input type="text" id="newUserName" placeholder="Nome do usuário">
+            </div>
+            <div class="form-group">
+              <label>E-mail</label>
+              <input type="email" id="newUserEmail" placeholder="email@exemplo.com">
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label>Senha</label>
+              <input type="password" id="newUserPass" placeholder="Mínimo 8 caracteres">
+            </div>
+            <div class="form-group">
+              <label>Perfil</label>
+              <select id="newUserRole">
+                <option value="admin">Administrador</option>
+                <option value="viewer">Visualizador</option>
+              </select>
+            </div>
+          </div>
+          <button class="btn-sm btn-primary" onclick="addUser()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Adicionar usuário
+          </button>
+        </div>
+        <div class="users-grid" id="usersList"></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- MODAL PERFIL -->
+<div class="modal-overlay hide" id="profileModal" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <h2 id="modalName">Perfil do Lead</h2>
+      <button class="modal-close" onclick="document.getElementById('profileModal').classList.add('hide')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+// ─── AUTH ───
+const USERS = [
+  { email: 'dantslourenco@gmail.com', password: 'meuacertoai@1212', name: 'Dants Lourenço', role: 'admin' },
+  { email: 'miguelnani18@gmail.com', password: 'meuacertoai@1212', name: 'Miguel Nani', role: 'admin' }
+];
+
+let adminUsers = JSON.parse(localStorage.getItem('meuacerto_admin_users') || '[]');
+let currentUser = null;
+let allLeads = [];
+let currentCRMFilter = 'all';
+
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  const allUsers = [...USERS, ...adminUsers];
+  const user = allUsers.find(u => u.email === email && u.password === pass);
+  if (user) {
+    currentUser = user;
+    document.getElementById('loginScreen').classList.add('hide');
+    document.getElementById('app').classList.remove('hide');
+    document.getElementById('sidebarUserName').textContent = user.name;
+    document.getElementById('sidebarUserEmail').textContent = user.email;
+    loadData();
+    renderUsers();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !document.getElementById('loginScreen').classList.contains('hide')) doLogin();
+});
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('loginScreen').classList.remove('hide');
+  document.getElementById('app').classList.add('hide');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+// ─── NAVIGATION ───
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(i => {
+    if (i.getAttribute('onclick')?.includes(id)) i.classList.add('active');
+  });
+}
+
+// ─── DATA ───
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxyGcVzgQhyGZTb4kGfTpK3XRyCMXvC4980wIsBCJgqUb4M6AkKAxl3b87dZqqdJXgX/exec';
+
+const AREA_LABELS = {
+  trabalhista: 'Trabalhista', bancario: 'Bancário', consumidor: 'Consumidor',
+  viagens: 'Viagens', contratos: 'Contratos', outros: 'Outros'
+};
+const AREA_COLORS = {
+  trabalhista:'#1D4ED8', bancario:'#15803D', consumidor:'#C2410C',
+  viagens:'#4338CA', contratos:'#7E22CE', outros:'#475569'
+};
+const AREA_BG = {
+  trabalhista:'#EFF6FF', bancario:'#F0FDF4', consumidor:'#FFF7ED',
+  viagens:'#EEF2FF', contratos:'#FDF4FF', outros:'#F1F5F9'
+};
+const AREA_CLASS = {
+  trabalhista:'area-t', bancario:'area-b', consumidor:'area-c',
+  viagens:'area-v', contratos:'area-ct', outros:'area-o'
+};
+
+// Demo data para quando o Sheets não responder
+const DEMO_DATA = [
+  { timestamp:'19/05/2026 10:30', name:'Carlos Mendes', email:'carlos@email.com', caseType:'trabalhista', description:'Fui demitido sem justa causa e não recebi as verbas rescisórias corretamente. Trabalhei 4 anos na empresa.' },
+  { timestamp:'19/05/2026 11:15', name:'Ana Lima', email:'ana.lima@email.com', caseType:'consumidor', description:'Comprei um produto que não foi entregue e a empresa não quer me reembolsar já faz 60 dias.' },
+  { timestamp:'19/05/2026 12:00', name:'Roberto Silva', email:'roberto@email.com', caseType:'bancario', description:'Meu banco cobrou tarifas que não contratei por 6 meses seguidos e não quer devolver.' },
+  { timestamp:'18/05/2026 09:00', name:'Fernanda Costa', email:'fernanda@email.com', caseType:'viagens', description:'Meu voo foi cancelado sem aviso e perdi hotel e conexão, tive prejuízo de R$ 3.000.' },
+  { timestamp:'18/05/2026 14:30', name:'João Alves', email:'joao@email.com', caseType:'trabalhista', description:'Estou trabalhando 12 horas por dia sem receber horas extras há 2 anos.' },
+  { timestamp:'17/05/2026 16:00', name:'Mariana Souza', email:'mariana@email.com', caseType:'contratos', description:'Assinei um contrato de prestação de serviço e a empresa não entregou o que prometeu.' },
+];
+
+async function loadData() {
+  try {
+    const resp = await fetch(SHEETS_URL + '?action=get', { method: 'GET' });
+    const data = await resp.json();
+    allLeads = data.leads || DEMO_DATA;
+  } catch(e) {
+    allLeads = DEMO_DATA;
+  }
+  renderDashboard();
+  renderCRM();
+  renderAllLeads();
+}
+
+// ─── PROSPECT STATUS ───
+function getStatus(lead) {
+  const desc = (lead.description || '').toLowerCase();
+  const hotWords = ['demitido','cancelado','não recebi','não entregou','abusivo','prejuízo','cobrança indevida','assédio','não pago'];
+  const coldWords = ['curiosidade','dúvida geral','pergunta','não tenho certeza'];
+  const hot = hotWords.some(w => desc.includes(w));
+  const cold = coldWords.some(w => desc.includes(w));
+  if (hot) return 'prospect';
+  if (cold) return 'cold';
+  return 'lead';
+}
+
+function statusBadge(status) {
+  const map = {
+    prospect: '<span class="badge prospect">● Prospect</span>',
+    lead: '<span class="badge lead">◎ Lead</span>',
+    cold: '<span class="badge cold">○ Frio</span>'
+  };
+  return map[status] || map.lead;
+}
+
+function areaBadge(area) {
+  return `<span class="badge ${AREA_CLASS[area] || 'area-o'}">${AREA_LABELS[area] || area}</span>`;
+}
+
+function avatarColor(name) {
+  const colors = ['#1B3F72','#1D4ED8','#15803D','#7E22CE','#C2410C','#0F766E'];
+  let hash = 0;
+  for (let c of name) hash = c.charCodeAt(0) + hash * 31;
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function initials(name) {
+  return name.split(' ').slice(0,2).map(w=>w[0]).join('').toUpperCase();
+}
+
+// ─── DASHBOARD ───
+function renderDashboard() {
+  const total = allLeads.length;
+  const prospects = allLeads.filter(l => getStatus(l) === 'prospect').length;
+  const maybe = allLeads.filter(l => getStatus(l) === 'lead').length;
+
+  const now = new Date();
+  const weekAgo = new Date(now - 7*24*60*60*1000);
+  const thisWeek = allLeads.filter(l => {
+    try { return new Date(l.timestamp) >= weekAgo; } catch { return true; }
+  }).length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statProspects').textContent = prospects;
+  document.getElementById('statMaybe').textContent = maybe;
+  document.getElementById('statWeek').textContent = thisWeek;
+
+  // Bar chart
+  const areas = ['trabalhista','bancario','consumidor','viagens','contratos','outros'];
+  const counts = {};
+  areas.forEach(a => counts[a] = allLeads.filter(l => l.caseType === a).length);
+  const max = Math.max(...Object.values(counts), 1);
+  const barColors = ['#1D4ED8','#15803D','#C2410C','#4338CA','#7E22CE','#475569'];
+  document.getElementById('barChart').innerHTML = areas.map((a,i) => `
+    <div class="bar-item">
+      <div class="bar-label">${AREA_LABELS[a]}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${counts[a]/max*100}%;background:${barColors[i]}"></div></div>
+      <div class="bar-val">${counts[a]}</div>
+    </div>`).join('');
+
+  // Donut
+  const cold = allLeads.filter(l => getStatus(l) === 'cold').length;
+  const circ = 2 * Math.PI * 45;
+  const pGreen = prospects / (total || 1);
+  const pYellow = maybe / (total || 1);
+  const pGray = cold / (total || 1);
+  document.getElementById('donutGreen').setAttribute('stroke-dasharray', `${pGreen*circ} ${circ}`);
+  document.getElementById('donutYellow').setAttribute('stroke-dasharray', `${pYellow*circ} ${circ}`);
+  document.getElementById('donutYellow').setAttribute('stroke-dashoffset', `${circ - pGreen*circ + circ*0.25}`);
+  document.getElementById('donutGray').setAttribute('stroke-dasharray', `${pGray*circ} ${circ}`);
+  document.getElementById('donutGray').setAttribute('stroke-dashoffset', `${circ - (pGreen+pYellow)*circ + circ*0.25}`);
+
+  // Recent leads
+  const recent = [...allLeads].reverse().slice(0,8);
+  document.getElementById('recentLeadsBody').innerHTML = recent.map(l => `
+    <tr onclick="openModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">
+      <td><strong>${l.name}</strong></td>
+      <td style="color:var(--slate)">${l.email}</td>
+      <td>${areaBadge(l.caseType)}</td>
+      <td>${statusBadge(getStatus(l))}</td>
+      <td style="color:var(--gray-mid);font-size:12px">${l.timestamp || '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--gray-mid);padding:24px">Nenhum lead ainda</td></tr>';
+}
+
+// ─── CRM ───
+function renderCRM() {
+  const areas = ['trabalhista','bancario','consumidor','viagens','contratos','outros'];
+  document.getElementById('cnt-all').textContent = allLeads.length;
+  areas.forEach(a => {
+    const el = document.getElementById('cnt-' + a);
+    if (el) el.textContent = allLeads.filter(l => l.caseType === a).length;
+  });
+  filterCRM(currentCRMFilter);
+}
+
+function filterCRM(area) {
+  currentCRMFilter = area;
+  document.querySelectorAll('.crm-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.crm-tab').forEach(t => {
+    if (t.getAttribute('onclick')?.includes(`'${area}'`)) t.classList.add('active');
+  });
+
+  const filtered = area === 'all' ? allLeads : allLeads.filter(l => l.caseType === area);
+  const grid = document.getElementById('profileGrid');
+
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>Nenhum lead nesta categoria</p></div>';
+    return;
+  }
+
+  grid.innerHTML = filtered.map(l => {
+    const status = getStatus(l);
+    const color = avatarColor(l.name);
+    return `
+    <div class="profile-card" onclick="openModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between">
+        <div class="profile-avatar" style="background:${color}">${initials(l.name)}</div>
+        ${statusBadge(status)}
+      </div>
+      <div class="profile-name">${l.name}</div>
+      <div class="profile-email">${l.email}</div>
+      <div class="profile-meta">${areaBadge(l.caseType)}</div>
+      <div class="profile-desc">${l.description || '—'}</div>
+      <div class="profile-footer">
+        <div class="profile-date">${l.timestamp || '—'}</div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── ALL LEADS ───
+function renderAllLeads(filter='') {
+  const filtered = allLeads.filter(l =>
+    !filter || l.name?.toLowerCase().includes(filter) || l.email?.toLowerCase().includes(filter) || l.description?.toLowerCase().includes(filter)
+  );
+  document.getElementById('allLeadsBody').innerHTML = filtered.map(l => `
+    <tr onclick="openModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">
+      <td><strong>${l.name}</strong></td>
+      <td style="color:var(--slate);font-size:12.5px">${l.email}</td>
+      <td>${areaBadge(l.caseType)}</td>
+      <td style="color:var(--slate);font-size:12px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.description || '—'}</td>
+      <td>${statusBadge(getStatus(l))}</td>
+      <td style="color:var(--gray-mid);font-size:12px;white-space:nowrap">${l.timestamp || '—'}</td>
+    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray-mid);padding:24px">Nenhum resultado</td></tr>';
+}
+
+function filterLeads(val) { renderAllLeads(val.toLowerCase()); }
+
+// ─── MODAL ───
+function openModal(lead) {
+  if (typeof lead === 'string') lead = JSON.parse(lead);
+  const status = getStatus(lead);
+  document.getElementById('modalName').textContent = lead.name;
+  document.getElementById('modalBody').innerHTML = `
+    <div class="modal-section">
+      <div class="modal-section-title">Dados do Lead</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px">
+        ${areaBadge(lead.caseType)} ${statusBadge(status)}
+      </div>
+      <div class="modal-field"><span class="modal-field-label">E-mail:</span><span class="modal-field-val">${lead.email}</span></div>
+      <div class="modal-field"><span class="modal-field-label">Data:</span><span class="modal-field-val">${lead.timestamp || '—'}</span></div>
+      <div class="modal-field"><span class="modal-field-label">Área:</span><span class="modal-field-val">${AREA_LABELS[lead.caseType] || lead.caseType}</span></div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">Situação descrita</div>
+      <div class="analysis-box">${lead.description || 'Não informado'}</div>
+    </div>
+    <div class="modal-section">
+      <div class="modal-section-title">Classificação do Perfil</div>
+      <div style="background:var(--white);border:1px solid var(--gray-light);border-radius:10px;padding:16px">
+        ${status === 'prospect' ? `
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--green-bg);display:flex;align-items:center;justify-content:center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div><div style="font-weight:600;color:var(--green);font-size:14px">Prospect Quente</div><div style="font-size:12px;color:var(--slate)">Alta probabilidade de conversão</div></div>
+          </div>
+          <p style="font-size:13px;color:var(--slate);line-height:1.6">A situação descrita apresenta elementos que indicam um caso com potencial. Recomendamos contato prioritário.</p>
+        ` : status === 'lead' ? `
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--blue-bg);display:flex;align-items:center;justify-content:center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <div><div style="font-weight:600;color:var(--blue);font-size:14px">Lead em Avaliação</div><div style="font-size:12px;color:var(--slate)">Precisa de mais informações</div></div>
+          </div>
+          <p style="font-size:13px;color:var(--slate);line-height:1.6">A situação pode ter potencial mas precisa de qualificação adicional. Sugerimos um contato para entender melhor o caso.</p>
+        ` : `
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="width:36px;height:36px;border-radius:10px;background:var(--gray-light);display:flex;align-items:center;justify-content:center">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+            <div><div style="font-weight:600;color:var(--slate);font-size:14px">Lead Frio</div><div style="font-size:12px;color:var(--gray-mid)">Baixa probabilidade no momento</div></div>
+          </div>
+          <p style="font-size:13px;color:var(--slate);line-height:1.6">O perfil atual não indica urgência imediata. Pode ser incluído em fluxo de nutrição.</p>
+        `}
+      </div>
+    </div>`;
+  document.getElementById('profileModal').classList.remove('hide');
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('profileModal'))
+    document.getElementById('profileModal').classList.add('hide');
+}
+
+// ─── USERS ───
+function renderUsers() {
+  const allUsers = [...USERS, ...adminUsers];
+  document.getElementById('usersList').innerHTML = allUsers.map((u, i) => `
+    <div class="user-row">
+      <div class="user-avatar">${initials(u.name)}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name}</div>
+        <div class="user-email">${u.email}</div>
+      </div>
+      <span class="user-role">${u.role === 'admin' ? 'Administrador' : 'Visualizador'}</span>
+      <div class="user-actions">
+        ${i >= USERS.length ? `<button class="icon-btn" onclick="removeUser(${i - USERS.length})" title="Remover">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>` : '<div style="width:32px"></div>'}
+      </div>
+    </div>`).join('');
+}
+
+function addUser() {
+  const name = document.getElementById('newUserName').value.trim();
+  const email = document.getElementById('newUserEmail').value.trim();
+  const pass = document.getElementById('newUserPass').value;
+  const role = document.getElementById('newUserRole').value;
+  if (!name || !email || !pass) { alert('Preencha todos os campos'); return; }
+  if (pass.length < 8) { alert('Senha deve ter pelo menos 8 caracteres'); return; }
+  adminUsers.push({ name, email, password: pass, role });
+  localStorage.setItem('meuacerto_admin_users', JSON.stringify(adminUsers));
+  document.getElementById('newUserName').value = '';
+  document.getElementById('newUserEmail').value = '';
+  document.getElementById('newUserPass').value = '';
+  renderUsers();
+}
+
+function removeUser(idx) {
+  if (!confirm('Remover este usuário?')) return;
+  adminUsers.splice(idx, 1);
+  localStorage.setItem('meuacerto_admin_users', JSON.stringify(adminUsers));
+  renderUsers();
+}
+</script>
+</body>
+</html>
