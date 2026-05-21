@@ -1478,10 +1478,18 @@
     // Salva dados para a página de resultado
     sessionStorage.setItem('meuacerto_dados', JSON.stringify(dados));
 
-    // Salva no localStorage para o painel admin
-    const leadsSalvos = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
-    leadsSalvos.push(dados);
-    localStorage.setItem('meuacerto_leads', JSON.stringify(leadsSalvos));
+    // Salva no localStorage para o painel admin (com arquivos completos)
+    try {
+      const leadsSalvos = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
+      leadsSalvos.push(dados); // dados já contém files com base64
+      localStorage.setItem('meuacerto_leads', JSON.stringify(leadsSalvos));
+    } catch(storageErr) {
+      // Se localStorage estiver cheio (arquivos grandes), salva sem os arquivos
+      const leadsSalvos = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
+      const dadosSemArquivos = {...dados, files: dados.files.map(f => ({name: f.name, size: f.size, type: f.type}))};
+      leadsSalvos.push(dadosSemArquivos);
+      localStorage.setItem('meuacerto_leads', JSON.stringify(leadsSalvos));
+    }
 
     // Envia para Google Sheets
     const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxyGcVzgQhyGZTb4kGfTpK3XRyCMXvC4980wIsBCJgqUb4M6AkKAxl3b87dZqqdJXgX/exec';
