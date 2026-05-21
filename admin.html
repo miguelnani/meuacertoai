@@ -579,14 +579,42 @@ const DEMO_DATA = [
 
 async function loadData() {
   try {
-    const resp = await fetch(SHEETS_URL + '?action=get', { method: 'GET' });
-    const data = await resp.json();
-    allLeads = (data.leads || DEMO_DATA).map(l => ({
+    // Usa JSONP para contornar CORS do Google Apps Script
+    const data = await new Promise((resolve, reject) => {
+      const callbackName = 'gsCallback_' + Date.now();
+      const script = document.createElement('script');
+      const timeout = setTimeout(() => {
+        delete window[callbackName];
+        document.body.removeChild(script);
+        reject(new Error('Timeout'));
+      }, 8000);
+
+      window[callbackName] = (data) => {
+        clearTimeout(timeout);
+        delete window[callbackName];
+        document.body.removeChild(script);
+        resolve(data);
+      };
+
+      script.src = SHEETS_URL + '?callback=' + callbackName;
+      script.onerror = () => {
+        clearTimeout(timeout);
+        delete window[callbackName];
+        reject(new Error('Script error'));
+      };
+      document.body.appendChild(script);
+    });
+
+    allLeads = (data.leads || []).map(l => ({
       ...l,
       filesCount: parseInt(l.filesCount) || 0,
       fileNames: l.fileNames || ''
     }));
+
+    if (allLeads.length === 0) allLeads = DEMO_DATA;
+
   } catch(e) {
+    console.log('Usando dados demo:', e.message);
     allLeads = DEMO_DATA;
   }
   renderDashboard();
@@ -795,11 +823,27 @@ function clearSelection() {
   renderAllLeads(currentFilter);
 }
 
-function deleteSelected() {
+async function deleteSelected() {
   if (!selectedLeads.size) return;
   const count = selectedLeads.size;
   if (!confirm(`Apagar ${count} lead${count > 1 ? 's' : ''}? Esta ação não pode ser desfeita.`)) return;
+
   const indices = [...selectedLeads].sort((a,b) => b-a);
+  const emailsToDelete = indices.map(i => allLeads[i].email);
+
+  // Apaga do Google Sheets
+  try {
+    await fetch(SHEETS_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', emails: emailsToDelete })
+    });
+  } catch(e) {
+    console.log('Erro ao apagar do Sheets:', e);
+  }
+
+  // Apaga localmente
   indices.forEach(i => allLeads.splice(i, 1));
   selectedLeads.clear();
   document.getElementById('selectAll').checked = false;
