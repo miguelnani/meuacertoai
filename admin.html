@@ -116,6 +116,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--white);color:va
 .table-header h3{font-family:'Sora',sans-serif;font-size:14px;font-weight:600;color:var(--navy)}
 table{width:100%;border-collapse:collapse}
 thead th{padding:10px 16px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--gray-mid);background:var(--white);border-bottom:1px solid var(--gray-light)}
+.cb-col{width:40px;padding-left:16px!important}
+input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:var(--orange)}
+.delete-bar{display:none;align-items:center;gap:12px;background:#FEF2F2;border:1.5px solid #FECACA;border-radius:10px;padding:10px 16px;margin-bottom:16px}
+.delete-bar.show{display:flex}
+.delete-bar-text{font-size:13px;font-weight:500;color:var(--red)}
+.delete-bar-btn{background:var(--red);color:white;padding:6px 14px;border-radius:7px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+.delete-bar-cancel{background:transparent;color:var(--slate);padding:6px 12px;border-radius:7px;font-size:13px;font-weight:500;border:1.5px solid var(--gray-light);cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
 tbody tr{border-bottom:1px solid var(--gray-light);transition:background 0.15s;cursor:pointer}
 tbody tr:last-child{border-bottom:none}
 tbody tr:hover{background:#FAFBFC}
@@ -404,6 +411,12 @@ td{padding:12px 16px;font-size:13.5px;color:var(--navy)}
         </div>
       </div>
       <div style="padding:28px">
+        <div class="delete-bar" id="deleteBar">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+          <span class="delete-bar-text" id="deleteBarText">0 leads selecionados</span>
+          <button class="delete-bar-btn" onclick="deleteSelected()">Apagar selecionados</button>
+          <button class="delete-bar-cancel" onclick="clearSelection()">Cancelar</button>
+        </div>
         <div class="table-card">
           <div class="table-header">
             <h3>Leads recebidos</h3>
@@ -412,7 +425,8 @@ td{padding:12px 16px;font-size:13.5px;color:var(--navy)}
           <div style="overflow-x:auto">
             <table>
               <thead><tr>
-                <th>Nome</th><th>E-mail</th><th>Área</th><th>Situação</th><th>Status</th><th>Data</th>
+                <th class="cb-col"><input type="checkbox" id="selectAll" onchange="toggleSelectAll(this)"></th>
+                <th>Nome</th><th>E-mail</th><th>Área</th><th>Situação</th><th>Arquivos</th><th>Status</th><th>Data</th>
               </tr></thead>
               <tbody id="allLeadsBody"></tbody>
             </table>
@@ -555,19 +569,23 @@ const AREA_CLASS = {
 
 // Demo data para quando o Sheets não responder
 const DEMO_DATA = [
-  { timestamp:'19/05/2026 10:30', name:'Carlos Mendes', email:'carlos@email.com', caseType:'trabalhista', description:'Fui demitido sem justa causa e não recebi as verbas rescisórias corretamente. Trabalhei 4 anos na empresa.' },
-  { timestamp:'19/05/2026 11:15', name:'Ana Lima', email:'ana.lima@email.com', caseType:'consumidor', description:'Comprei um produto que não foi entregue e a empresa não quer me reembolsar já faz 60 dias.' },
-  { timestamp:'19/05/2026 12:00', name:'Roberto Silva', email:'roberto@email.com', caseType:'bancario', description:'Meu banco cobrou tarifas que não contratei por 6 meses seguidos e não quer devolver.' },
-  { timestamp:'18/05/2026 09:00', name:'Fernanda Costa', email:'fernanda@email.com', caseType:'viagens', description:'Meu voo foi cancelado sem aviso e perdi hotel e conexão, tive prejuízo de R$ 3.000.' },
-  { timestamp:'18/05/2026 14:30', name:'João Alves', email:'joao@email.com', caseType:'trabalhista', description:'Estou trabalhando 12 horas por dia sem receber horas extras há 2 anos.' },
-  { timestamp:'17/05/2026 16:00', name:'Mariana Souza', email:'mariana@email.com', caseType:'contratos', description:'Assinei um contrato de prestação de serviço e a empresa não entregou o que prometeu.' },
+  { timestamp:'19/05/2026 10:30', name:'Carlos Mendes', email:'carlos@email.com', caseType:'trabalhista', description:'Fui demitido sem justa causa e não recebi as verbas rescisórias corretamente. Trabalhei 4 anos na empresa.', filesCount:2, fileNames:'Rescisão.pdf, Holerite.jpg' },
+  { timestamp:'19/05/2026 11:15', name:'Ana Lima', email:'ana.lima@email.com', caseType:'consumidor', description:'Comprei um produto que não foi entregue e a empresa não quer me reembolsar já faz 60 dias.', filesCount:1, fileNames:'Comprovante.pdf' },
+  { timestamp:'19/05/2026 12:00', name:'Roberto Silva', email:'roberto@email.com', caseType:'bancario', description:'Meu banco cobrou tarifas que não contratei por 6 meses seguidos e não quer devolver.', filesCount:0, fileNames:'' },
+  { timestamp:'18/05/2026 09:00', name:'Fernanda Costa', email:'fernanda@email.com', caseType:'viagens', description:'Meu voo foi cancelado sem aviso e perdi hotel e conexão, tive prejuízo de R$ 3.000.', filesCount:3, fileNames:'Passagem.pdf, Hotel.pdf, Print.png' },
+  { timestamp:'18/05/2026 14:30', name:'João Alves', email:'joao@email.com', caseType:'trabalhista', description:'Estou trabalhando 12 horas por dia sem receber horas extras há 2 anos.', filesCount:0, fileNames:'' },
+  { timestamp:'17/05/2026 16:00', name:'Mariana Souza', email:'mariana@email.com', caseType:'contratos', description:'Assinei um contrato de prestação de serviço e a empresa não entregou o que prometeu.', filesCount:1, fileNames:'Contrato.pdf' },
 ];
 
 async function loadData() {
   try {
     const resp = await fetch(SHEETS_URL + '?action=get', { method: 'GET' });
     const data = await resp.json();
-    allLeads = data.leads || DEMO_DATA;
+    allLeads = (data.leads || DEMO_DATA).map(l => ({
+      ...l,
+      filesCount: parseInt(l.filesCount) || 0,
+      fileNames: l.fileNames || ''
+    }));
   } catch(e) {
     allLeads = DEMO_DATA;
   }
@@ -714,19 +732,80 @@ function filterCRM(area) {
 }
 
 // ─── ALL LEADS ───
+let selectedLeads = new Set();
+let currentFilter = '';
+
 function renderAllLeads(filter='') {
+  currentFilter = filter;
   const filtered = allLeads.filter(l =>
     !filter || l.name?.toLowerCase().includes(filter) || l.email?.toLowerCase().includes(filter) || l.description?.toLowerCase().includes(filter)
   );
-  document.getElementById('allLeadsBody').innerHTML = filtered.map(l => `
-    <tr onclick="openModal(${JSON.stringify(l).replace(/"/g,'&quot;')})">
-      <td><strong>${l.name}</strong></td>
+  document.getElementById('allLeadsBody').innerHTML = filtered.map((l, i) => {
+    const idx = allLeads.indexOf(l);
+    const checked = selectedLeads.has(idx) ? 'checked' : '';
+    return `
+    <tr>
+      <td class="cb-col" onclick="event.stopPropagation()">
+        <input type="checkbox" ${checked} onchange="toggleLead(${idx}, this)">
+      </td>
+      <td onclick="openModal(${JSON.stringify(l).replace(/"/g,'&quot;')})" style="cursor:pointer"><strong>${l.name}</strong></td>
       <td style="color:var(--slate);font-size:12.5px">${l.email}</td>
       <td>${areaBadge(l.caseType)}</td>
-      <td style="color:var(--slate);font-size:12px;max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.description || '—'}</td>
+      <td style="color:var(--slate);font-size:12px;max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${l.description || '—'}</td>
+      <td>${l.filesCount > 0 ? `<span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:100px;background:var(--blue-bg);color:var(--blue)">${l.filesCount} arquivo${l.filesCount > 1 ? 's' : ''}</span>` : '<span style="color:var(--gray-mid);font-size:12px">—</span>'}</td>
       <td>${statusBadge(getStatus(l))}</td>
       <td style="color:var(--gray-mid);font-size:12px;white-space:nowrap">${l.timestamp || '—'}</td>
-    </tr>`).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray-mid);padding:24px">Nenhum resultado</td></tr>';
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray-mid);padding:24px">Nenhum resultado</td></tr>';
+  updateDeleteBar();
+}
+
+function toggleLead(idx, cb) {
+  if (cb.checked) selectedLeads.add(idx);
+  else selectedLeads.delete(idx);
+  updateDeleteBar();
+}
+
+function toggleSelectAll(cb) {
+  const filtered = allLeads.filter(l =>
+    !currentFilter || l.name?.toLowerCase().includes(currentFilter) || l.email?.toLowerCase().includes(currentFilter)
+  );
+  filtered.forEach(l => {
+    const idx = allLeads.indexOf(l);
+    if (cb.checked) selectedLeads.add(idx);
+    else selectedLeads.delete(idx);
+  });
+  renderAllLeads(currentFilter);
+}
+
+function updateDeleteBar() {
+  const bar = document.getElementById('deleteBar');
+  const count = selectedLeads.size;
+  if (count > 0) {
+    bar.classList.add('show');
+    document.getElementById('deleteBarText').textContent = `${count} lead${count > 1 ? 's' : ''} selecionado${count > 1 ? 's' : ''}`;
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+function clearSelection() {
+  selectedLeads.clear();
+  document.getElementById('selectAll').checked = false;
+  renderAllLeads(currentFilter);
+}
+
+function deleteSelected() {
+  if (!selectedLeads.size) return;
+  const count = selectedLeads.size;
+  if (!confirm(`Apagar ${count} lead${count > 1 ? 's' : ''}? Esta ação não pode ser desfeita.`)) return;
+  const indices = [...selectedLeads].sort((a,b) => b-a);
+  indices.forEach(i => allLeads.splice(i, 1));
+  selectedLeads.clear();
+  document.getElementById('selectAll').checked = false;
+  renderDashboard();
+  renderCRM();
+  renderAllLeads(currentFilter);
 }
 
 function filterLeads(val) { renderAllLeads(val.toLowerCase()); }
@@ -750,6 +829,17 @@ function openModal(lead) {
       <div class="modal-section-title">Situação descrita</div>
       <div class="analysis-box">${lead.description || 'Não informado'}</div>
     </div>
+    ${lead.fileNames ? `
+    <div class="modal-section">
+      <div class="modal-section-title">Arquivos enviados (${lead.filesCount || 0})</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        ${lead.fileNames.split(',').map(f => f.trim()).filter(Boolean).map(f => `
+          <div style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:var(--white);border:1px solid var(--gray-light);border-radius:8px;font-size:12px;color:var(--slate)">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            ${f}
+          </div>`).join('')}
+      </div>
+    </div>` : ''}
     <div class="modal-section">
       <div class="modal-section-title">Classificação do Perfil</div>
       <div style="background:var(--white);border:1px solid var(--gray-light);border-radius:10px;padding:16px">
