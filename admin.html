@@ -579,42 +579,20 @@ const DEMO_DATA = [
 
 async function loadData() {
   try {
-    // Usa JSONP para contornar CORS do Google Apps Script
-    const data = await new Promise((resolve, reject) => {
-      const callbackName = 'gsCallback_' + Date.now();
-      const script = document.createElement('script');
-      const timeout = setTimeout(() => {
-        delete window[callbackName];
-        document.body.removeChild(script);
-        reject(new Error('Timeout'));
-      }, 8000);
-
-      window[callbackName] = (data) => {
-        clearTimeout(timeout);
-        delete window[callbackName];
-        document.body.removeChild(script);
-        resolve(data);
-      };
-
-      script.src = SHEETS_URL + '?callback=' + callbackName;
-      script.onerror = () => {
-        clearTimeout(timeout);
-        delete window[callbackName];
-        reject(new Error('Script error'));
-      };
-      document.body.appendChild(script);
-    });
-
-    allLeads = (data.leads || []).map(l => ({
-      ...l,
-      filesCount: parseInt(l.filesCount) || 0,
-      fileNames: l.fileNames || ''
-    }));
-
-    if (allLeads.length === 0) allLeads = DEMO_DATA;
-
+    // Lê leads do localStorage (salvos pelo formulário)
+    const salvos = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
+    
+    if (salvos.length > 0) {
+      allLeads = salvos.map(l => ({
+        ...l,
+        filesCount: l.files ? l.files.length : (parseInt(l.filesCount) || 0),
+        fileNames: l.files ? l.files.map(f => f.name).join(', ') : (l.fileNames || '')
+      }));
+    } else {
+      allLeads = DEMO_DATA;
+    }
   } catch(e) {
-    console.log('Usando dados demo:', e.message);
+    console.log('Erro ao carregar leads:', e);
     allLeads = DEMO_DATA;
   }
   renderDashboard();
@@ -831,20 +809,11 @@ async function deleteSelected() {
   const indices = [...selectedLeads].sort((a,b) => b-a);
   const emailsToDelete = indices.map(i => allLeads[i].email);
 
-  // Apaga do Google Sheets
-  try {
-    await fetch(SHEETS_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'delete', emails: emailsToDelete })
-    });
-  } catch(e) {
-    console.log('Erro ao apagar do Sheets:', e);
-  }
-
   // Apaga localmente
   indices.forEach(i => allLeads.splice(i, 1));
+  
+  // Atualiza localStorage
+  localStorage.setItem('meuacerto_leads', JSON.stringify(allLeads));
   selectedLeads.clear();
   document.getElementById('selectAll').checked = false;
   renderDashboard();
