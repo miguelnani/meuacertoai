@@ -172,7 +172,7 @@ main{padding-top:88px;padding-bottom:80px}
     </svg>
   </div>
   <div class="loading-title">Analisando sua situação…</div>
-  <div class="loading-sub">Nossa IA está lendo o que você compartilhou e preparando uma análise clara e organizada.</div>
+  <div class="loading-sub">Nossa IA está lendo o que você compartilhou e preparando uma análise inicial. A análise completa chegará no seu e-mail.</div>
   <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
   <div class="loading-steps">
     <div class="loading-step" id="step1">
@@ -276,11 +276,22 @@ main{padding-top:88px;padding-bottom:80px}
         <p><strong>Importante:</strong> Esta é uma análise inicial gerada por inteligência artificial com base nas informações que você forneceu. Ela não substitui a orientação de um profissional especializado. Use estas informações para entender melhor sua situação e buscar o suporte adequado.</p>
       </div>
 
+      <!-- EMAIL NOTICE -->
+      <div style="background:white;border:1.5px solid var(--gray-light);border-radius:16px;padding:28px 32px;margin-top:24px;display:flex;align-items:flex-start;gap:20px">
+        <div style="width:48px;height:48px;border-radius:14px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3B82F6" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div>
+          <div style="font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--navy);margin-bottom:6px">Análise detalhada chegando no seu e-mail</div>
+          <p style="font-size:14px;color:var(--slate);line-height:1.7;margin-bottom:0">Nossa equipe está revisando sua situação e em breve você receberá um e-mail completo com a <strong>análise aprofundada</strong>, seus <strong>direitos explicados</strong> de forma simples e os <strong>próximos passos</strong> recomendados para o seu caso.</p>
+        </div>
+      </div>
+
       <!-- CTA FINAL -->
       <div class="cta-result">
-        <h2>Entendeu sua situação?</h2>
-        <p>Se quiser mais clareza ou precisar de apoio para dar o próximo passo, fale com a gente.</p>
-        <a href="mailto:miguelnani18@gmail.com?subject=Quero apoio — Meu Acerto AI" class="btn-orange">
+        <h2>Sua análise está em andamento</h2>
+        <p>Em breve você receberá tudo no seu e-mail. Se tiver dúvidas urgentes, fale com a gente.</p>
+        <a href="mailto:miguelnani18@gmail.com?subject=Dúvida urgente — Meu Acerto AI" class="btn-orange">
           Falar com a equipe
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
@@ -387,18 +398,33 @@ Gere entre 3-5 itens em timeline, 3-5 pontos, 2-4 direitos e 3-4 próximos passo
 
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': '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', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': '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',
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true'
+    },
     body: JSON.stringify({
       model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
+      max_tokens: 1500,
       messages: [{ role: 'user', content: prompt }]
     })
   });
 
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error('API Error ' + response.status + ': ' + errText);
+  }
+
   const data = await response.json();
   const text = data.content.find(b => b.type === 'text')?.text || '';
   const clean = text.replace(/```json|```/g, '').trim();
-  return JSON.parse(clean);
+  
+  // Find JSON in response
+  const jsonMatch = clean.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error('JSON não encontrado na resposta: ' + clean.substring(0, 200));
+  
+  return JSON.parse(jsonMatch[0]);
 }
 
 function tagColor(cor) {
@@ -432,7 +458,7 @@ function renderAnalysis(data, nome) {
 
   // Update header
   document.getElementById('resultTitle').textContent = `Análise de ${nome}`;
-  document.getElementById('resultSub').textContent = 'Veja abaixo o que identificamos com base no que você compartilhou. Leia com calma — preparamos tudo de forma clara.';
+  document.getElementById('resultSub').textContent = 'Veja abaixo um resumo inicial da sua situação. Em breve você receberá a análise completa e os próximos passos no seu e-mail.';
 
   let html = '';
 
@@ -593,7 +619,8 @@ async function init() {
     }, 500);
 
   } catch(e) {
-    console.error(e);
+    console.error('ERRO COMPLETO:', e);
+    alert('Erro: ' + e.message);
     document.getElementById('loadingScreen').classList.add('hide');
     setTimeout(() => {
       document.getElementById('loadingScreen').style.display = 'none';
