@@ -1323,11 +1323,13 @@
           <div class="form-row">
             <div class="form-group">
               <label for="name">Seu nome</label>
-              <input type="text" id="name" name="name" placeholder="Como prefere ser chamado?" required>
+              <input type="text" id="name" name="name" placeholder="Seu nome completo" required>
+              <span style="font-size:12px;color:var(--gray-mid);margin-top:5px;display:block">Nome completo, sem abreviações</span>
             </div>
             <div class="form-group">
               <label for="email">Seu e-mail</label>
               <input type="email" id="email" name="email" placeholder="email@exemplo.com" required>
+              <span style="font-size:12px;color:var(--gray-mid);margin-top:5px;display:block">Você receberá a análise neste e-mail</span>
             </div>
           </div>
 
@@ -1347,6 +1349,7 @@
           <div class="form-group">
             <label for="description">Descreva sua situação</label>
             <textarea id="description" name="description" id="descriptionField" required></textarea>
+            <span style="font-size:12px;color:var(--gray-mid);margin-top:6px;display:block;line-height:1.6">Inclua tudo o que você tiver sobre o caso: o que aconteceu, datas, documentos, valores, tentativas de resolução e outros detalhes relevantes. Isso ajuda a gerar uma análise mais aprofundada.</span>
           </div>
 
           <div class="form-group">
@@ -1417,12 +1420,12 @@
 <script>
   // Placeholders dinâmicos
   const placeholders = {
-    trabalhista: "Exemplo: fui desligado recentemente e tenho dúvidas sobre horas extras, descontos e verbas rescisórias não pagas.",
-    bancario: "Exemplo: meu banco está cobrando tarifas que não contratei e aplicando juros que parecem abusivos.",
-    consumidor: "Exemplo: tive problemas com cancelamento de serviço, cobrança indevida ou produto que não chegou.",
-    viagens: "Exemplo: meu voo foi cancelado sem aviso, perdi conexões e tive prejuízos durante a viagem.",
-    contratos: "Exemplo: assinei um contrato e a outra parte não está cumprindo o que foi acordado.",
-    outros: "Descreva sua situação com suas palavras. Não precisa ser técnico — conte o que aconteceu."
+    trabalhista: "Ex: Fui demitido em 10/03/2025 após 3 anos de empresa. Não recebi as horas extras dos últimos 6 meses (cerca de R$ 2.000) e o FGTS não foi depositado corretamente. Tentei resolver com o RH mas não obtive resposta...",
+    bancario: "Ex: Desde janeiro/2025 o banco está cobrando uma tarifa de R$ 49,90/mês que não contratei. Já liguei 3 vezes e abri reclamação no app, mas continuaram cobrando. No total já foram R$ 250 indevidos...",
+    consumidor: "Ex: Comprei um produto em 15/02/2025 por R$ 890. A entrega foi prometida em 7 dias mas não chegou. A empresa não responde e-mails e o SAC diz que não tem previsão. Tenho nota fiscal e prints das conversas...",
+    viagens: "Ex: Meu voo de 20/04/2025 foi cancelado sem aviso. Perdi a conexão e fiquei 12h no aeroporto. Tive gastos extras de R$ 600 com hotel e alimentação. A companhia se recusou a reembolsar...",
+    contratos: "Ex: Assinei contrato de prestação de serviço em março/2025 no valor de R$ 5.000. Paguei 50% de entrada mas o serviço não foi entregue no prazo. Já tentei contato por WhatsApp e e-mail sem resposta...",
+    outros: "Descreva o que aconteceu com o máximo de detalhes possível: datas, valores, pessoas envolvidas, documentos que você tem e o que já tentou fazer para resolver."
   };
 
   document.getElementById('caseType').addEventListener('change', function () {
