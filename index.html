@@ -1440,7 +1440,7 @@
     list.innerHTML = names;
   });
 
-  // Form submit com integração Google Sheets + redirecionamento para análise IA
+  // Form submit
   document.getElementById('contactForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -1448,33 +1448,55 @@
     btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Enviando...';
     btn.disabled = true;
 
+    // Coleta arquivos em base64
+    const fileInput = document.getElementById('fileInput');
+    const files = [];
+    if (fileInput.files.length > 0) {
+      for (const file of fileInput.files) {
+        const b64 = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result);
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+        files.push({ name: file.name, size: file.size, type: file.type, data: b64 });
+      }
+    }
+
     const dados = {
       name: document.getElementById('name').value,
       email: document.getElementById('email').value,
       caseType: document.getElementById('caseType').value,
       description: document.getElementById('description').value,
-      timestamp: new Date().toLocaleString('pt-BR')
+      timestamp: new Date().toLocaleString('pt-BR'),
+      files: files
     };
 
-    // Salva dados para a página de análise
+    // Salva dados para a página de resultado
     sessionStorage.setItem('meuacerto_dados', JSON.stringify(dados));
 
-    // Envia para Google Sheets via Apps Script (substitua pela sua URL)
-    const SHEETS_URL = 'COLE_AQUI_A_URL_DO_SEU_GOOGLE_APPS_SCRIPT';
+    // Envia para Google Sheets
+    const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxyGcVzgQhyGZTb4kGfTpK3XRyCMXvC4980wIsBCJgqUb4M6AkKAxl3b87dZqqdJXgX/exec';
     try {
-      if (SHEETS_URL !== 'COLE_AQUI_A_URL_DO_SEU_GOOGLE_APPS_SCRIPT') {
-        await fetch(SHEETS_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(dados)
-        });
-      }
+      await fetch(SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timestamp: dados.timestamp,
+          name: dados.name,
+          email: dados.email,
+          caseType: dados.caseType,
+          description: dados.description,
+          filesCount: files.length,
+          fileNames: files.map(f => f.name).join(', ')
+        })
+      });
     } catch(err) {
       console.log('Sheets offline, continuando...');
     }
 
-    // Redireciona para página de análise IA
+    // Redireciona para resultado
     window.location.href = 'resultado.html';
   });
 
