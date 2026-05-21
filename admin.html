@@ -824,8 +824,11 @@ async function deleteSelected() {
 function filterLeads(val) { renderAllLeads(val.toLowerCase()); }
 
 // ─── MODAL ───
+let currentModalLead = null;
+
 function openModal(lead) {
   if (typeof lead === 'string') lead = JSON.parse(lead);
+  currentModalLead = lead;
   const status = getStatus(lead);
   document.getElementById('modalName').textContent = lead.name;
   document.getElementById('modalBody').innerHTML = `
@@ -842,7 +845,34 @@ function openModal(lead) {
       <div class="modal-section-title">Situação descrita</div>
       <div class="analysis-box">${lead.description || 'Não informado'}</div>
     </div>
-    ${lead.fileNames ? `
+    ${lead.files && lead.files.length > 0 ? `
+    <div class="modal-section">
+      <div class="modal-section-title">Arquivos enviados (${lead.files.length})</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        ${lead.files.map((f, i) => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--white);border:1.5px solid var(--gray-light);border-radius:10px;transition:border-color 0.2s" onmouseover="this.style.borderColor='var(--orange)'" onmouseout="this.style.borderColor='var(--gray-light)'">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div style="width:32px;height:32px;border-radius:8px;background:${f.type && f.type.includes('pdf') ? '#FEE2E2' : f.type && f.type.includes('image') ? '#DBEAFE' : '#F1F5F9'};display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${f.type && f.type.includes('pdf') ? '#EF4444' : f.type && f.type.includes('image') ? '#3B82F6' : '#64748B'}" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--navy)">${f.name}</div>
+                <div style="font-size:11px;color:var(--gray-mid)">${f.size ? (f.size/1024).toFixed(0) + ' KB' : ''}</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px">
+              <button onclick="previewFile('${i}', currentModalLead)" style="padding:6px 10px;border-radius:7px;background:var(--blue-bg);color:var(--blue);border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:4px">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Ver
+              </button>
+              <button onclick="downloadFile('${i}', currentModalLead)" style="padding:6px 10px;border-radius:7px;background:var(--green-bg);color:var(--green);border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:4px">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Baixar
+              </button>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>` : lead.fileNames ? `
     <div class="modal-section">
       <div class="modal-section-title">Arquivos enviados (${lead.filesCount || 0})</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">
@@ -930,6 +960,29 @@ function removeUser(idx) {
   adminUsers.splice(idx, 1);
   localStorage.setItem('meuacerto_admin_users', JSON.stringify(adminUsers));
   renderUsers();
+}
+
+function previewFile(idx, lead) {
+  if (!lead || !lead.files || !lead.files[idx]) return;
+  const file = lead.files[idx];
+  const win = window.open('', '_blank');
+  if (file.type && file.type.includes('image')) {
+    win.document.write(`<html><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="${file.data}" style="max-width:100%;max-height:100vh;object-fit:contain"></body></html>`);
+  } else if (file.type && file.type.includes('pdf')) {
+    win.document.write(`<html><body style="margin:0"><embed src="${file.data}" type="application/pdf" width="100%" height="100%" style="position:fixed;inset:0"></body></html>`);
+  } else {
+    win.document.write(`<html><body style="font-family:sans-serif;padding:40px"><h2>${file.name}</h2><p>Visualização não disponível para este tipo de arquivo.</p><a href="${file.data}" download="${file.name}" style="background:#F97316;color:white;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:600">Baixar arquivo</a></body></html>`);
+  }
+  win.document.close();
+}
+
+function downloadFile(idx, lead) {
+  if (!lead || !lead.files || !lead.files[idx]) return;
+  const file = lead.files[idx];
+  const a = document.createElement('a');
+  a.href = file.data;
+  a.download = file.name;
+  a.click();
 }
 </script>
 </body>
