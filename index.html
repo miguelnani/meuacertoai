@@ -1478,6 +1478,11 @@
     // Salva dados para a página de resultado
     sessionStorage.setItem('meuacerto_dados', JSON.stringify(dados));
 
+    // Salva no localStorage para o painel admin
+    const leadsSalvos = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
+    leadsSalvos.push(dados);
+    localStorage.setItem('meuacerto_leads', JSON.stringify(leadsSalvos));
+
     // Envia para Google Sheets
     const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxyGcVzgQhyGZTb4kGfTpK3XRyCMXvC4980wIsBCJgqUb4M6AkKAxl3b87dZqqdJXgX/exec';
     try {
