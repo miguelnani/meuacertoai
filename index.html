@@ -310,6 +310,40 @@
     animation: fadeUp 0.9s ease 0.3s both;
   }
 
+  /* MOCKUP CAROUSEL */
+  .mock-slide {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .mock-slide.fade-out {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  .mock-slide.fade-in {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  .mock-indicators {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 14px;
+  }
+  .mock-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+  .mock-indicator.active {
+    background: var(--orange);
+    width: 18px;
+    border-radius: 100px;
+  }
+
   .dashboard-mockup {
     background: var(--navy);
     border-radius: 20px;
@@ -733,6 +767,76 @@
     line-height: 1.5;
   }
 
+  /* CAROUSEL */
+  .carousel-wrapper {
+    position: relative;
+    overflow: hidden;
+    margin-top: 40px;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 16px;
+    transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+  }
+
+  .carousel-track .area-card {
+    min-width: 260px;
+    flex-shrink: 0;
+    margin: 0;
+  }
+
+  .carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 24px;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 100px;
+    background: var(--gray-light);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+  }
+
+  .carousel-dot.active {
+    width: 24px;
+    background: var(--orange);
+  }
+
+  .carousel-nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .carousel-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1.5px solid var(--gray-light);
+    background: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--slate);
+    transition: all 0.2s;
+  }
+
+  .carousel-btn:hover {
+    border-color: var(--orange);
+    color: var(--orange);
+    background: var(--orange-glow);
+  }
+
   /* FORM */
   .form-section {
     background: var(--white);
@@ -1112,62 +1216,23 @@
           <div style="width: 60px;"></div>
         </div>
 
-        <div class="mock-case-header">
-          <div class="mock-case-tag">Trabalhista</div>
-          <div class="mock-case-title">Verbas rescisórias e horas extras</div>
-          <div class="mock-case-sub">Adicionado em 18/05/2025 — 3 documentos</div>
-          <div class="mock-status-row">
-            <div class="mock-status"><div class="mock-status-dot"></div> Em análise</div>
-            <div class="mock-status" style="margin-left: 12px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Estimativa: 2 min</div>
+        <div id="mockSlide" class="mock-slide">
+          <div class="mock-case-header">
+            <div class="mock-case-tag" id="mockTag">Trabalhista</div>
+            <div class="mock-case-title" id="mockTitle">Verbas rescisórias e horas extras</div>
+            <div class="mock-case-sub" id="mockSub">Adicionado em 18/05/2025 — 3 documentos</div>
+            <div class="mock-status-row">
+              <div class="mock-status"><div class="mock-status-dot"></div> Em análise</div>
+              <div class="mock-status" style="margin-left: 12px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Estimativa: 2 min</div>
+            </div>
+          </div>
+          <div class="mock-docs" id="mockDocs"></div>
+          <div class="mock-analysis">
+            <div class="mock-analysis-label" style="display:flex;align-items:center;gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> ANÁLISE INICIAL</div>
+            <div id="mockAnalysisItems"></div>
           </div>
         </div>
-
-        <div class="mock-docs">
-          <div class="mock-doc">
-            <div class="mock-doc-icon pdf"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
-            <div class="mock-doc-info">
-              <div class="mock-doc-name">Rescisão.pdf</div>
-              <div class="mock-doc-size">245 KB</div>
-            </div>
-          </div>
-          <div class="mock-doc">
-            <div class="mock-doc-icon img"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
-            <div class="mock-doc-info">
-              <div class="mock-doc-name">Holerite_mar.jpg</div>
-              <div class="mock-doc-size">118 KB</div>
-            </div>
-          </div>
-          <div class="mock-doc">
-            <div class="mock-doc-icon txt"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
-            <div class="mock-doc-info">
-              <div class="mock-doc-name">Contrato.pdf</div>
-              <div class="mock-doc-size">332 KB</div>
-            </div>
-          </div>
-          <div class="mock-doc">
-            <div class="mock-doc-icon ok"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            <div class="mock-doc-info">
-              <div class="mock-doc-name">Print_msg.png</div>
-              <div class="mock-doc-size">89 KB</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="mock-analysis">
-          <div class="mock-analysis-label" style="display:flex;align-items:center;gap:6px;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> ANÁLISE INICIAL</div>
-          <div class="mock-analysis-item">
-            <div class="mock-analysis-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            Possível divergência no saldo de horas extras identificado
-          </div>
-          <div class="mock-analysis-item">
-            <div class="mock-analysis-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            Documentos organizados cronologicamente
-          </div>
-          <div class="mock-analysis-item">
-            <div class="mock-analysis-check"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-            3 pontos relevantes estruturados para análise
-          </div>
-        </div>
+        <div class="mock-indicators" id="mockIndicators"></div>
       </div>
     </div>
   </div>
@@ -1273,38 +1338,51 @@
     <h2>Sua situação, organizada com inteligência</h2>
     <p class="section-desc">Trabalhamos com as principais áreas onde as pessoas precisam de mais clareza e organização.</p>
 
-    <div class="areas-grid">
-      <div class="area-card reveal">
-        <div class="area-icon" style="background: #EFF6FF;">💼</div>
-        <h3>Trabalhista</h3>
-        <p>Rescisões, horas extras, descontos, verbas, assédio e problemas contratuais.</p>
-      </div>
-      <div class="area-card reveal">
-        <div class="area-icon" style="background: #F0FDF4;">🏦</div>
-        <h3>Bancário</h3>
-        <p>Cobranças indevidas, juros abusivos, tarifas e problemas financeiros.</p>
-      </div>
-      <div class="area-card reveal">
-        <div class="area-icon" style="background: #FFF7ED;">🛍</div>
-        <h3>Consumidor</h3>
-        <p>Produtos com defeito, cancelamentos, cobranças e serviços não entregues.</p>
-      </div>
-      <div class="area-card reveal">
-        <div class="area-icon" style="background: #EFF6FF;">✈️</div>
-        <h3>Viagens</h3>
-        <p>Voos cancelados, bagagens extraviadas, atrasos e reembolsos de companhias aéreas.</p>
-      </div>
-      <div class="area-card reveal">
-        <div class="area-icon" style="background: #FDF4FF;">📜</div>
-        <h3>Contratos</h3>
-        <p>Quebras contratuais, cláusulas confusas, desacordos e análise documental.</p>
-      </div>
-      <div class="area-card reveal">
-        <div class="area-icon" style="background: #FFF7ED;">📂</div>
-        <h3>Outros casos</h3>
-        <p>Qualquer situação pessoal que exige organização e clareza de informações.</p>
+    <div class="carousel-nav">
+      <button class="carousel-btn" id="carouselPrev" aria-label="Anterior">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+      </button>
+      <button class="carousel-btn" id="carouselNext" aria-label="Próximo">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+      </button>
+    </div>
+
+    <div class="carousel-wrapper" id="areasCarousel">
+      <div class="carousel-track" id="carouselTrack">
+        <div class="area-card">
+          <div class="area-icon" style="background: #EFF6FF;">💼</div>
+          <h3>Trabalhista</h3>
+          <p>Rescisões, horas extras, descontos, verbas, assédio e problemas contratuais.</p>
+        </div>
+        <div class="area-card">
+          <div class="area-icon" style="background: #F0FDF4;">🏦</div>
+          <h3>Bancário</h3>
+          <p>Cobranças indevidas, juros abusivos, tarifas e problemas financeiros.</p>
+        </div>
+        <div class="area-card">
+          <div class="area-icon" style="background: #FFF7ED;">🛍</div>
+          <h3>Consumidor</h3>
+          <p>Produtos com defeito, cancelamentos, cobranças e serviços não entregues.</p>
+        </div>
+        <div class="area-card">
+          <div class="area-icon" style="background: #EFF6FF;">✈️</div>
+          <h3>Viagens</h3>
+          <p>Voos cancelados, bagagens extraviadas, atrasos e reembolsos de companhias aéreas.</p>
+        </div>
+        <div class="area-card">
+          <div class="area-icon" style="background: #FDF4FF;">📜</div>
+          <h3>Contratos</h3>
+          <p>Quebras contratuais, cláusulas confusas, desacordos e análise documental.</p>
+        </div>
+        <div class="area-card">
+          <div class="area-icon" style="background: #FFF7ED;">📂</div>
+          <h3>Outros casos</h3>
+          <p>Qualquer situação pessoal que exige organização e clareza de informações.</p>
+        </div>
       </div>
     </div>
+
+    <div class="carousel-dots" id="carouselDots"></div>
   </div>
 </section>
 
@@ -1515,6 +1593,219 @@
     // Redireciona para resultado
     window.location.href = 'resultado.html';
   });
+
+  // ── CAROUSEL ──
+  (function() {
+    const track = document.getElementById('carouselTrack');
+    const wrapper = document.getElementById('areasCarousel');
+    const dotsContainer = document.getElementById('carouselDots');
+    const cards = track.querySelectorAll('.area-card');
+    const btnPrev = document.getElementById('carouselPrev');
+    const btnNext = document.getElementById('carouselNext');
+
+    let current = 0;
+    let autoTimer = null;
+    let cardWidth = 0;
+    let visibleCount = 3;
+
+    function getVisibleCount() {
+      const w = wrapper.offsetWidth;
+      if (w < 480) return 1;
+      if (w < 720) return 2;
+      return 3;
+    }
+
+    function getCardWidth() {
+      const gap = 16;
+      const vc = getVisibleCount();
+      return (wrapper.offsetWidth - gap * (vc - 1)) / vc;
+    }
+
+    function buildDots() {
+      dotsContainer.innerHTML = '';
+      const total = cards.length - getVisibleCount() + 1;
+      for (let i = 0; i < total; i++) {
+        const dot = document.createElement('button');
+        dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goTo(i));
+        dotsContainer.appendChild(dot);
+      }
+    }
+
+    function updateDots() {
+      dotsContainer.querySelectorAll('.carousel-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === current);
+      });
+    }
+
+    function setCardWidths() {
+      cardWidth = getCardWidth();
+      cards.forEach(c => { c.style.minWidth = cardWidth + 'px'; });
+    }
+
+    function goTo(idx) {
+      const maxIdx = cards.length - getVisibleCount();
+      current = Math.max(0, Math.min(idx, maxIdx));
+      track.style.transform = 'translateX(-' + (current * (cardWidth + 16)) + 'px)';
+      updateDots();
+    }
+
+    function next() { goTo(current + 1 >= cards.length - getVisibleCount() + 1 ? 0 : current + 1); }
+    function prev() { goTo(current <= 0 ? cards.length - getVisibleCount() : current - 1); }
+
+    function startAuto() {
+      stopAuto();
+      autoTimer = setInterval(next, 3000);
+    }
+
+    function stopAuto() {
+      if (autoTimer) clearInterval(autoTimer);
+    }
+
+    btnNext.addEventListener('click', () => { stopAuto(); next(); startAuto(); });
+    btnPrev.addEventListener('click', () => { stopAuto(); prev(); startAuto(); });
+    wrapper.addEventListener('mouseenter', stopAuto);
+    wrapper.addEventListener('mouseleave', startAuto);
+
+    // Touch/swipe
+    let touchStartX = 0;
+    wrapper.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; stopAuto(); }, { passive: true });
+    wrapper.addEventListener('touchend', e => {
+      const diff = touchStartX - e.changedTouches[0].clientX;
+      if (Math.abs(diff) > 40) diff > 0 ? next() : prev();
+      startAuto();
+    });
+
+    function init() {
+      setCardWidths();
+      buildDots();
+      goTo(0);
+      startAuto();
+    }
+
+    window.addEventListener('resize', () => { setCardWidths(); buildDots(); goTo(0); });
+    init();
+  })();
+
+  // ── MOCKUP CAROUSEL ──
+  (function() {
+    const pdfIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>';
+    const imgIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';
+    const okIcon = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    const checkIcon = '<svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+
+    const slides = [
+      {
+        tag: 'Trabalhista', tagColor: '#1D4ED8', tagBg: 'rgba(29,78,216,0.15)',
+        title: 'Verbas rescisórias e horas extras',
+        sub: 'Adicionado em 18/05/2025 — 3 documentos',
+        docs: [
+          { cls:'pdf', icon: pdfIcon, name:'Rescisão.pdf', size:'245 KB' },
+          { cls:'img', icon: imgIcon, name:'Holerite_mar.jpg', size:'118 KB' },
+          { cls:'txt', icon: pdfIcon, name:'Contrato.pdf', size:'332 KB' },
+          { cls:'ok', icon: okIcon, name:'Print_msg.png', size:'89 KB' }
+        ],
+        analysis: ['Possível divergência nas horas extras identificada','Documentos organizados cronologicamente','3 pontos relevantes estruturados']
+      },
+      {
+        tag: 'Consumidor', tagColor: '#C2410C', tagBg: 'rgba(194,65,12,0.15)',
+        title: 'Produto não entregue — reembolso negado',
+        sub: 'Adicionado em 20/05/2025 — 2 documentos',
+        docs: [
+          { cls:'pdf', icon: pdfIcon, name:'NotaFiscal.pdf', size:'98 KB' },
+          { cls:'img', icon: imgIcon, name:'Print_chat.jpg', size:'210 KB' },
+          { cls:'img', icon: imgIcon, name:'Comprovante.jpg', size:'145 KB' },
+          { cls:'ok', icon: okIcon, name:'Email_suporte.pdf', size:'62 KB' }
+        ],
+        analysis: ['Prazo de entrega descumprido em 45 dias','Empresa se recusou a reembolsar — CDC aplicável','2 tentativas de contato documentadas']
+      },
+      {
+        tag: 'Bancário', tagColor: '#15803D', tagBg: 'rgba(21,128,61,0.15)',
+        title: 'Cobranças indevidas por 6 meses',
+        sub: 'Adicionado em 21/05/2025 — 4 documentos',
+        docs: [
+          { cls:'pdf', icon: pdfIcon, name:'Extrato_jan.pdf', size:'320 KB' },
+          { cls:'pdf', icon: pdfIcon, name:'Extrato_fev.pdf', size:'318 KB' },
+          { cls:'img', icon: imgIcon, name:'Contrato_banco.jpg', size:'189 KB' },
+          { cls:'ok', icon: okIcon, name:'Reclamacao.pdf', size:'74 KB' }
+        ],
+        analysis: ['Total cobrado indevidamente: R$ 894,00','Tarifa não consta no contrato original','Direito à devolução em dobro — Art. 42 CDC']
+      },
+      {
+        tag: 'Viagens', tagColor: '#4338CA', tagBg: 'rgba(67,56,202,0.15)',
+        title: 'Voo cancelado sem aviso — prejuízo R$ 2.400',
+        sub: 'Adicionado em 22/05/2025 — 3 documentos',
+        docs: [
+          { cls:'pdf', icon: pdfIcon, name:'Passagem.pdf', size:'156 KB' },
+          { cls:'img', icon: imgIcon, name:'Print_app.jpg', size:'203 KB' },
+          { cls:'txt', icon: pdfIcon, name:'Comprovante_hotel.pdf', size:'91 KB' },
+          { cls:'ok', icon: okIcon, name:'Gastos_extras.pdf', size:'68 KB' }
+        ],
+        analysis: ['Cancelamento sem comunicação prévia','Passageiro tem direito a reembolso integral','Gastos emergenciais documentados: R$ 1.200']
+      }
+    ];
+
+    let current = 0;
+    const slide = document.getElementById('mockSlide');
+    const indicators = document.getElementById('mockIndicators');
+
+    // Build indicators
+    slides.forEach((_, i) => {
+      const dot = document.createElement('div');
+      dot.className = 'mock-indicator' + (i === 0 ? ' active' : '');
+      dot.onclick = () => goTo(i);
+      indicators.appendChild(dot);
+    });
+
+    function renderSlide(idx) {
+      const s = slides[idx];
+      document.getElementById('mockTag').textContent = s.tag;
+      document.getElementById('mockTag').style.background = s.tagBg;
+      document.getElementById('mockTag').style.color = s.tagColor;
+      document.getElementById('mockTag').style.border = '1px solid ' + s.tagColor + '44';
+      document.getElementById('mockTitle').textContent = s.title;
+      document.getElementById('mockSub').textContent = s.sub;
+
+      document.getElementById('mockDocs').innerHTML = s.docs.map(d => `
+        <div class="mock-doc">
+          <div class="mock-doc-icon ${d.cls}">${d.icon}</div>
+          <div class="mock-doc-info">
+            <div class="mock-doc-name">${d.name}</div>
+            <div class="mock-doc-size">${d.size}</div>
+          </div>
+        </div>`).join('');
+
+      document.getElementById('mockAnalysisItems').innerHTML = s.analysis.map(a => `
+        <div class="mock-analysis-item">
+          <div class="mock-analysis-check">${checkIcon}</div>
+          ${a}
+        </div>`).join('');
+
+      document.querySelectorAll('.mock-indicator').forEach((d, i) => {
+        d.classList.toggle('active', i === idx);
+      });
+    }
+
+    function goTo(idx) {
+      slide.classList.add('fade-out');
+      setTimeout(() => {
+        current = idx;
+        renderSlide(current);
+        slide.classList.remove('fade-out');
+        slide.classList.add('fade-in');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            slide.classList.remove('fade-in');
+          });
+        });
+      }, 400);
+    }
+
+    function next() { goTo((current + 1) % slides.length); }
+
+    renderSlide(0);
+    setInterval(next, 3500);
+  })();
 
   // Reveal on scroll
   const reveals = document.querySelectorAll('.reveal');
