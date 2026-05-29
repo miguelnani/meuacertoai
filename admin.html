@@ -309,7 +309,7 @@ td{padding:12px 16px;font-size:13.5px;color:var(--navy)}
           <div class="topbar-sub">Visão geral dos leads e análises</div>
         </div>
         <div class="topbar-actions">
-          <button class="btn-sm btn-ghost" onclick="loadData()">
+          <button class="btn-sm btn-ghost" onclick="loadData().then(()=>showToast('Dados atualizados!'))">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
             Atualizar
           </button>
@@ -577,7 +577,7 @@ const DEMO_DATA = [
   { timestamp:'17/05/2026 16:00', name:'Mariana Souza', email:'mariana@email.com', caseType:'contratos', description:'Assinei um contrato de prestação de serviço e a empresa não entregou o que prometeu.', filesCount:1, fileNames:'Contrato.pdf' },
 ];
 
-async function loadData() {
+async function loadData() { return new Promise(async (resolve) => {
   try {
     // Lê leads do localStorage (salvos pelo formulário)
     const salvos = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
@@ -598,6 +598,8 @@ async function loadData() {
   renderDashboard();
   renderCRM();
   renderAllLeads();
+  resolve();
+  });
 }
 
 // ─── PROSPECT STATUS ───
@@ -960,6 +962,30 @@ function removeUser(idx) {
   adminUsers.splice(idx, 1);
   localStorage.setItem('meuacerto_admin_users', JSON.stringify(adminUsers));
   renderUsers();
+}
+
+// Atualiza automaticamente quando novos leads chegam
+window.addEventListener('storage', function(e) {
+  if (e.key === 'meuacerto_leads') {
+    loadData();
+    showToast('Novo lead recebido!');
+  }
+});
+
+// Atualiza ao voltar para a aba
+window.addEventListener('focus', function() {
+  loadData();
+});
+
+// Atualiza a cada 30 segundos automaticamente
+setInterval(loadData, 30000);
+
+function showToast(msg) {
+  const toast = document.createElement('div');
+  toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0F172A;color:white;padding:12px 20px;border-radius:10px;font-size:13px;font-weight:500;font-family:Plus Jakarta Sans,sans-serif;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:8px;animation:fadeUp 0.3s ease';
+  toast.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>' + msg;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
 }
 
 function previewFile(idx, lead) {
