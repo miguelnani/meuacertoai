@@ -787,6 +787,19 @@
     margin: 0;
   }
 
+  @media (max-width: 600px) {
+    .carousel-track .area-card {
+      min-width: calc(100vw - 2.4rem - 2px);
+    }
+    .carousel-wrapper {
+      overflow: hidden;
+    }
+    .carousel-nav {
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+  }
+
   .carousel-dots {
     display: flex;
     justify-content: center;
@@ -1755,8 +1768,8 @@
 
     function getVisibleCount() {
       const w = wrapper.offsetWidth;
-      if (w < 480) return 1;
-      if (w < 720) return 2;
+      if (w < 500) return 1;
+      if (w < 750) return 2;
       return 3;
     }
 
