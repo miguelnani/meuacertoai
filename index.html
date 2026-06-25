@@ -1081,7 +1081,6 @@
       padding: 100px 1.5rem 60px;
       text-align: center;
     }
-
     .hero-content { max-width: 100%; }
     .hero-actions { justify-content: center; }
     .hero-trust { justify-content: center; }
@@ -1095,8 +1094,145 @@
   }
 
   @media (max-width: 600px) {
-    .areas-grid { grid-template-columns: 1fr 1fr; }
-    .mock-docs { grid-template-columns: 1fr 1fr; }
+    /* Hero */
+    .hero {
+      padding: 88px 1.2rem 48px;
+    }
+    h1 {
+      font-size: 1.75rem;
+      letter-spacing: -0.5px;
+    }
+    .hero-sub {
+      font-size: 15px;
+    }
+    .hero-actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+    .btn-primary, .btn-secondary {
+      justify-content: center;
+      width: 100%;
+    }
+
+    /* Mockup mobile fix */
+    .hero-visual {
+      overflow: hidden;
+    }
+    .dashboard-mockup {
+      padding: 16px;
+      border-radius: 16px;
+    }
+    .mock-docs {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .mock-doc {
+      padding: 8px;
+    }
+    .mock-doc-name {
+      font-size: 10px;
+    }
+    .mock-doc-size {
+      font-size: 9px;
+    }
+    .mock-doc-icon {
+      width: 26px;
+      height: 26px;
+      font-size: 12px;
+    }
+    .mock-case-title {
+      font-size: 13px;
+    }
+    .mock-analysis-item {
+      font-size: 11px;
+    }
+
+    /* Sections */
+    .section {
+      padding: 60px 1.2rem;
+    }
+    .pain-section {
+      padding: 60px 1.2rem;
+    }
+    .pain-grid {
+      grid-template-columns: 1fr;
+    }
+    .steps-row {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .step {
+      padding: 0;
+      text-align: left;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+    .step-num {
+      margin: 0;
+      flex-shrink: 0;
+    }
+    .step h3, .step p {
+      text-align: left;
+    }
+
+    /* Form */
+    .form-section {
+      padding: 60px 1.2rem;
+    }
+    .form-card {
+      padding: 24px 16px;
+      border-radius: 16px;
+    }
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+    .form-submit {
+      font-size: 14px;
+      padding: 14px;
+    }
+    .upload-area {
+      padding: 20px 16px;
+    }
+
+    /* CTA */
+    .cta-section {
+      padding: 60px 1.2rem;
+    }
+    .cta-section h2 {
+      font-size: 1.5rem;
+    }
+    .hero-actions.cta-actions {
+      flex-direction: column;
+      align-items: center;
+    }
+    .btn-ghost {
+      margin-left: 0;
+      margin-top: 8px;
+    }
+
+    /* Carousel */
+    .carousel-track .area-card {
+      min-width: 240px;
+    }
+    .carousel-nav {
+      justify-content: center;
+    }
+
+    /* Tag transform */
+    .tag-transform {
+      gap: 10px;
+    }
+
+    /* Footer */
+    .footer-inner {
+      gap: 16px;
+    }
+    .footer-links {
+      flex-wrap: wrap;
+      gap: 12px;
+    }
   }
 
   /* TAG OVERLAY */
@@ -1387,7 +1523,7 @@
 </section>
 
 <!-- FORM -->
-<section class="form-section" id="analisar" style="background: var(--navy); border-top: 1px solid rgba(255,255,255,0.06);">
+<section class="form-section" id="analisar" style="background: var(--navy); border-top: 1px solid rgba(255,255,255,0.06); padding-bottom: 80px;">
   <div class="container">
     <div style="text-align: center; margin-bottom: 0;">
       <div class="section-label" style="justify-content: center; display: inline-flex; color: var(--orange);">Iniciar análise</div>
@@ -1529,18 +1665,27 @@
     btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Enviando...';
     btn.disabled = true;
 
-    // Coleta arquivos em base64
+    // Coleta arquivos em base64 (com limite de 5MB por arquivo para mobile)
     const fileInput = document.getElementById('fileInput');
     const files = [];
     if (fileInput.files.length > 0) {
       for (const file of fileInput.files) {
-        const b64 = await new Promise((res, rej) => {
-          const r = new FileReader();
-          r.onload = () => res(r.result);
-          r.onerror = rej;
-          r.readAsDataURL(file);
-        });
-        files.push({ name: file.name, size: file.size, type: file.type, data: b64 });
+        try {
+          if (file.size > 5 * 1024 * 1024) {
+            // Arquivo muito grande — salva só os metadados
+            files.push({ name: file.name, size: file.size, type: file.type, data: null });
+          } else {
+            const b64 = await new Promise((res, rej) => {
+              const r = new FileReader();
+              r.onload = () => res(r.result);
+              r.onerror = () => res(null);
+              r.readAsDataURL(file);
+            });
+            files.push({ name: file.name, size: file.size, type: file.type, data: b64 });
+          }
+        } catch(err) {
+          files.push({ name: file.name, size: file.size, type: file.type, data: null });
+        }
       }
     }
 
