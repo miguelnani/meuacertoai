@@ -1555,8 +1555,8 @@
               <div class="upload-title">Clique para anexar arquivos</div>
               <div class="upload-sub">PDFs, prints, holerites, contratos, comprovantes, imagens</div>
             </div>
-            <input type="file" id="fileInput" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt">
-            <div id="fileList" style="margin-top: 10px; font-size: 13px; color: var(--slate);"></div>
+            <input type="file" id="fileInput" multiple accept=".pdf,.png,.jpg,.jpeg,.doc,.docx,.txt" style="display:none">
+            <div id="fileList" style="margin-top: 10px;"></div>
           </div>
 
           <div class="security-notice">
@@ -1629,15 +1629,39 @@
     field.placeholder = placeholders[this.value] || "Descreva sua situação...";
   });
 
-  // File upload
+  // File upload — acumula arquivos sem sobrescrever
+  let allFiles = []; // acumula todos os arquivos selecionados
+
   document.getElementById('fileInput').addEventListener('change', function () {
-    const list = document.getElementById('fileList');
-    if (this.files.length === 0) { list.innerHTML = ''; return; }
-    const names = Array.from(this.files).map(f =>
-      `<span style="display:inline-block;margin:4px 6px 0 0;padding:4px 10px;background:var(--gray-light);border-radius:6px;font-size:12px;">📄 ${f.name}</span>`
-    ).join('');
-    list.innerHTML = names;
+    const novos = Array.from(this.files);
+    novos.forEach(novoArq => {
+      // Evita duplicatas pelo nome
+      if (!allFiles.find(f => f.name === novoArq.name && f.size === novoArq.size)) {
+        allFiles.push(novoArq);
+      }
+    });
+    this.value = ''; // reseta o input para aceitar os mesmos arquivos de novo
+    renderFileList();
   });
+
+  function renderFileList() {
+    const list = document.getElementById('fileList');
+    if (allFiles.length === 0) { list.innerHTML = ''; return; }
+    list.innerHTML = allFiles.map((f, i) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding:8px 12px;background:var(--gray-light);border-radius:8px;">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--navy)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span>${f.name}</span>
+          <span style="color:var(--gray-mid);font-size:11px">${(f.size/1024).toFixed(0)} KB</span>
+        </div>
+        <button onclick="removeFile(${i})" style="background:none;border:none;cursor:pointer;color:var(--gray-mid);padding:2px 6px;border-radius:4px;font-size:16px;line-height:1" title="Remover">×</button>
+      </div>`).join('');
+  }
+
+  function removeFile(idx) {
+    allFiles.splice(idx, 1);
+    renderFileList();
+  }
 
   // Form submit
   document.getElementById('contactForm').addEventListener('submit', async function (e) {
@@ -1647,17 +1671,15 @@
     btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" style="animation:spin 1s linear infinite"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg> Enviando...';
     btn.disabled = true;
 
-    // Coleta arquivos em base64 (com limite de 5MB por arquivo para mobile)
-    const fileInput = document.getElementById('fileInput');
+    // Coleta arquivos acumulados em base64
     const files = [];
-    if (fileInput.files.length > 0) {
-      for (const file of fileInput.files) {
+    if (allFiles.length > 0) {
+      for (const file of allFiles) {
         try {
           if (file.size > 5 * 1024 * 1024) {
-            // Arquivo muito grande — salva só os metadados
             files.push({ name: file.name, size: file.size, type: file.type, data: null });
           } else {
-            const b64 = await new Promise((res, rej) => {
+            const b64 = await new Promise((res) => {
               const r = new FileReader();
               r.onload = () => res(r.result);
               r.onerror = () => res(null);
