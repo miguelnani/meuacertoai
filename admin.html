@@ -548,7 +548,7 @@ function showPage(id) {
 }
 
 // ─── DATA ───
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxyGcVzgQhyGZTb4kGfTpK3XRyCMXvC4980wIsBCJgqUb4M6AkKAxl3b87dZqqdJXgX/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwQWywxQICLs7uwbb-dju3pGgeluBcAT_pJZuzTR8lY_bAExd45tIhwoNL4rfhEbLRz/exec';
 
 const AREA_LABELS = {
   trabalhista: 'Trabalhista', bancario: 'Bancário', consumidor: 'Consumidor',
@@ -579,21 +579,42 @@ const DEMO_DATA = [
 
 async function loadData() { return new Promise(async (resolve) => {
   try {
-    // Lê leads do localStorage (salvos pelo formulário)
-    const salvos = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
-    
-    if (salvos.length > 0) {
-      allLeads = salvos.map(l => ({
+    // Lê do Sheets via fetch com modo cors (Apps Script público aceita)
+    const resp = await fetch(SHEETS_URL, {
+      method: 'GET',
+      redirect: 'follow'
+    });
+    const text = await resp.text();
+    // Remove possível BOM ou prefixo
+    const clean = text.trim().replace(/^[^{[]*/, '');
+    const sheetsData = JSON.parse(clean);
+
+    if (sheetsData && sheetsData.leads && sheetsData.leads.length > 0) {
+      const local = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
+      allLeads = sheetsData.leads.map(l => {
+        const localMatch = local.find(ll => ll.email === l.email);
+        return {
+          ...l,
+          files: localMatch ? (localMatch.files || []) : [],
+          filesCount: parseInt(l.filesCount) || 0,
+          fileNames: l.fileNames || ''
+        };
+      });
+    } else {
+      throw new Error('sem leads no Sheets');
+    }
+  } catch(e) {
+    console.log('Sheets fetch falhou, usando localStorage:', e.message);
+    try {
+      const salvos = JSON.parse(localStorage.getItem('meuacerto_leads') || '[]');
+      allLeads = salvos.length > 0 ? salvos.map(l => ({
         ...l,
         filesCount: l.files ? l.files.length : (parseInt(l.filesCount) || 0),
         fileNames: l.files ? l.files.map(f => f.name).join(', ') : (l.fileNames || '')
-      }));
-    } else {
+      })) : DEMO_DATA;
+    } catch(e2) {
       allLeads = DEMO_DATA;
     }
-  } catch(e) {
-    console.log('Erro ao carregar leads:', e);
-    allLeads = DEMO_DATA;
   }
   renderDashboard();
   renderCRM();
