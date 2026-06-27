@@ -1530,56 +1530,19 @@
           </div>
 
           <div class="form-group">
-            <label>Como prefere receber o retorno?</label>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">
-              <div id="optWhatsapp" onclick="selectContact('whatsapp')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--orange);border-radius:10px;cursor:pointer;background:var(--orange-glow);transition:all 0.2s">
-                <div style="width:18px;height:18px;border-radius:50%;border:2px solid var(--orange);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div id="dotWhatsapp" style="width:8px;height:8px;border-radius:50%;background:var(--orange)"></div>
-                </div>
-                <div>
-                  <div style="font-size:13.5px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:6px">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.824L.057 23.428a.5.5 0 0 0 .514.572l5.805-1.523A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.823 9.823 0 0 1-5.012-1.371l-.36-.214-3.732.979.998-3.645-.235-.374A9.818 9.818 0 0 1 2.18 12c0-5.414 4.406-9.818 9.82-9.818 5.413 0 9.818 4.404 9.818 9.818 0 5.413-4.404 9.818-9.818 9.818z"/></svg>
-                    WhatsApp
-                  </div>
-                  <div style="font-size:11px;color:var(--slate)">Resposta mais rápida</div>
-                </div>
+            <label for="phone">Celular / WhatsApp <span style="color:var(--orange)">*</span></label>
+            <div style="position:relative;display:flex;align-items:center">
+              <div style="position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;padding:0 12px;background:#F1F5F9;border:1.5px solid var(--gray-light);border-right:none;border-radius:10px 0 0 10px;font-size:13px;color:var(--slate);font-weight:500;white-space:nowrap;gap:5px">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.824L.057 23.428a.5.5 0 0 0 .514.572l5.805-1.523A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.823 9.823 0 0 1-5.012-1.371l-.36-.214-3.732.979.998-3.645-.235-.374A9.818 9.818 0 0 1 2.18 12c0-5.414 4.406-9.818 9.82-9.818 5.413 0 9.818 4.404 9.818 9.818 0 5.413-4.404 9.818-9.818 9.818z"/></svg>
+                +55
               </div>
-              <div id="optEmail" onclick="selectContact('email')" style="display:flex;align-items:center;gap:10px;padding:12px 14px;border:1.5px solid var(--gray-light);border-radius:10px;cursor:pointer;background:white;transition:all 0.2s">
-                <div style="width:18px;height:18px;border-radius:50%;border:2px solid var(--gray);display:flex;align-items:center;justify-content:center;flex-shrink:0">
-                  <div id="dotEmail" style="width:8px;height:8px;border-radius:50%;background:transparent"></div>
-                </div>
-                <div>
-                  <div style="font-size:13.5px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:6px">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-                    E-mail
-                  </div>
-                  <div style="font-size:11px;color:var(--slate)">Análise detalhada</div>
-                </div>
-              </div>
+              <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000" required oninput="formatPhone(this)"
+                style="padding-left:78px;border-radius:0 10px 10px 0;border-left:none;width:100%">
             </div>
-            <input type="hidden" id="contactPreference" name="contactPreference" value="whatsapp">
-
-            <!-- Campo WhatsApp -->
-            <div id="phoneField">
-              <div style="position:relative;display:flex;align-items:center">
-                <div style="position:absolute;left:0;top:0;bottom:0;display:flex;align-items:center;padding:0 12px;background:#F1F5F9;border:1.5px solid var(--gray-light);border-right:none;border-radius:10px 0 0 10px;font-size:13px;color:var(--slate);font-weight:500;white-space:nowrap;gap:5px">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.117.554 4.103 1.523 5.824L.057 23.428a.5.5 0 0 0 .514.572l5.805-1.523A11.95 11.95 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.823 9.823 0 0 1-5.012-1.371l-.36-.214-3.732.979.998-3.645-.235-.374A9.818 9.818 0 0 1 2.18 12c0-5.414 4.406-9.818 9.82-9.818 5.413 0 9.818 4.404 9.818 9.818 0 5.413-4.404 9.818-9.818 9.818z"/></svg>
-                  +55
-                </div>
-                <input type="tel" id="phone" name="phone" placeholder="(00) 00000-0000" oninput="formatPhone(this)"
-                  style="padding-left:78px;border-radius:0 10px 10px 0;border-left:none;width:100%">
-              </div>
-              <span style="font-size:12px;color:#25D366;margin-top:6px;display:flex;align-items:center;gap:5px;font-weight:500">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
-                Nossa equipe vai te chamar no WhatsApp com o retorno da análise
-              </span>
-            </div>
-
-            <!-- Mensagem email -->
-            <div id="emailNote" style="display:none;padding:10px 14px;background:#EFF6FF;border:1px solid #BFDBFE;border-radius:8px;font-size:12.5px;color:#1D4ED8;display:none;align-items:center;gap:8px">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-              Você receberá a análise detalhada no e-mail informado acima.
-            </div>
+            <span style="font-size:12px;color:var(--slate);margin-top:6px;display:flex;align-items:center;gap:5px">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.42 2 2 0 0 1 3.6 1.24h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.38a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 15z"/></svg>
+              Usaremos este número para enviar as orientações e o retorno da sua análise
+            </span>
           </div>
 
           <div class="form-group">
@@ -1668,40 +1631,6 @@
 
 <script>
   // Placeholders dinâmicos
-  // Contact preference selector
-  function selectContact(type) {
-    const phoneField = document.getElementById('phoneField');
-    const emailNote = document.getElementById('emailNote');
-    const optWhatsapp = document.getElementById('optWhatsapp');
-    const optEmail = document.getElementById('optEmail');
-    const dotWhatsapp = document.getElementById('dotWhatsapp');
-    const dotEmail = document.getElementById('dotEmail');
-    const phoneInput = document.getElementById('phone');
-    document.getElementById('contactPreference').value = type;
-
-    if (type === 'whatsapp') {
-      optWhatsapp.style.border = '1.5px solid var(--orange)';
-      optWhatsapp.style.background = 'var(--orange-glow)';
-      dotWhatsapp.style.background = 'var(--orange)';
-      optEmail.style.border = '1.5px solid var(--gray-light)';
-      optEmail.style.background = 'white';
-      dotEmail.style.background = 'transparent';
-      phoneField.style.display = 'block';
-      emailNote.style.display = 'none';
-      phoneInput.required = true;
-    } else {
-      optEmail.style.border = '1.5px solid var(--orange)';
-      optEmail.style.background = 'var(--orange-glow)';
-      dotEmail.style.background = 'var(--orange)';
-      optWhatsapp.style.border = '1.5px solid var(--gray-light)';
-      optWhatsapp.style.background = 'white';
-      dotWhatsapp.style.background = 'transparent';
-      phoneField.style.display = 'none';
-      emailNote.style.display = 'flex';
-      phoneInput.required = false;
-    }
-  }
-
   // Phone formatter
   function formatPhone(input) {
     let v = input.value.replace(/\D/g, '').substring(0, 11);
@@ -1794,7 +1723,6 @@
       name: document.getElementById('name').value,
       email: document.getElementById('email').value,
       phone: document.getElementById('phone').value,
-      contactPreference: document.getElementById('contactPreference').value,
       caseType: document.getElementById('caseType').value,
       description: document.getElementById('description').value,
       timestamp: new Date().toLocaleString('pt-BR'),
